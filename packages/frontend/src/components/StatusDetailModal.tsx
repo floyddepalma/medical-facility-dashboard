@@ -104,22 +104,63 @@ export default function StatusDetailModal({ category, onClose, isOpen }: Props) 
         );
       }
       return (
-        <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {rooms.map(room => (
             <div key={room.id} style={{
-              padding: '14px 16px', borderRadius: '10px',
+              padding: '16px', borderRadius: '10px',
               background: 'var(--bg-surface-raised)', border: '1px solid var(--border-subtle)',
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             }}>
-              <div>
-                <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-heading)', marginBottom: '2px' }}>
-                  {room.name}
+              {/* Room header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: '15px', color: 'var(--text-heading)', marginBottom: '3px' }}>
+                    {room.name}
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', textTransform: 'capitalize' }}>
+                    {room.type} room
+                  </div>
                 </div>
-                <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', textTransform: 'capitalize' }}>
-                  {room.type} room
-                </div>
+                {statusBadge(room.status)}
               </div>
-              {statusBadge(room.status)}
+
+              {/* Equipment list */}
+              {room.equipment && room.equipment.length > 0 && (
+                <div style={{
+                  marginTop: '12px', paddingTop: '12px',
+                  borderTop: '1px solid var(--border-subtle)',
+                }}>
+                  <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    Equipment ({room.equipment.length})
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {room.equipment.map(eq => (
+                      <div key={eq.id} style={{
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                        padding: '8px 10px', borderRadius: '6px',
+                        background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
+                      }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-heading)' }}>
+                            {eq.name}
+                          </div>
+                          <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', textTransform: 'capitalize' }}>
+                            {eq.type}
+                          </div>
+                        </div>
+                        {statusBadge(eq.status)}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Last updated */}
+              <div style={{
+                marginTop: '12px', fontSize: '11px', color: 'var(--text-tertiary)',
+                display: 'flex', alignItems: 'center', gap: '4px',
+              }}>
+                <span>Updated {new Date(room.lastUpdated).toLocaleTimeString()}</span>
+              </div>
             </div>
           ))}
         </div>

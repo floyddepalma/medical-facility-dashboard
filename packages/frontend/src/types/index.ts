@@ -25,6 +25,12 @@ export interface Room {
   currentDoctorId?: string;
   estimatedAvailableAt?: string;
   lastUpdated: string;
+  equipment?: Array<{
+    id: string;
+    name: string;
+    type: string;
+    status: string;
+  }>;
 }
 
 export interface Equipment {

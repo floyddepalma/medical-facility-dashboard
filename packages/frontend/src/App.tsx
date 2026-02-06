@@ -56,6 +56,17 @@ function App() {
     return <Login onLogin={handleLogin} />;
   }
 
+  // Extract initials from first and last name only (ignore titles like Dr.)
+  const getInitials = (fullName: string): string => {
+    const words = fullName.trim().split(/\s+/).filter(word => 
+      word.length > 0 && !word.match(/^(Dr\.?|Mr\.?|Mrs\.?|Ms\.?|Miss)$/i)
+    );
+    if (words.length === 0) return '??';
+    if (words.length === 1) return words[0].substring(0, 2).toUpperCase();
+    // First and last name initials
+    return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+  };
+
   const roleLabel = user.role === 'doctor' ? 'Doctor'
     : user.role === 'medical_assistant' ? 'Medical Assistant'
     : 'Admin';
@@ -163,7 +174,7 @@ function App() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: 'white', fontSize: '13px', fontWeight: 600,
               }}>
-                {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                {getInitials(user.name)}
               </div>
               <div>
                 <div style={{ color: 'var(--text-on-primary)', fontSize: '13px', fontWeight: 500, lineHeight: 1.3 }}>
