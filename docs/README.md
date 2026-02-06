@@ -53,7 +53,7 @@ AI_API_KEY=sk-...
 
 # External Systems (for integration)
 CLAW_AGENT_URL=http://localhost:8000
-NORA_MCP_CONNECTION=stdio
+CARESYNC_MCP_CONNECTION=stdio
 ```
 
 ### Architecture Overview

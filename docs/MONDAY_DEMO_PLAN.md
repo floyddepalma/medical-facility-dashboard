@@ -178,8 +178,7 @@ CLAW_API_KEY=claw_secret_key_12345  # For webhooks from CLAW
 ### Refactoring Plan
 
 1. **Pull existing MCP codebase into new Kiro project**
-2. **Rebrand all "Nora" references to "CareSync"**
-3. **Update package.json:**
+2. **Update package.json:**
    ```json
    {
      "name": "@caresync/mcp-server",

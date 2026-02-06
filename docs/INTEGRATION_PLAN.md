@@ -101,7 +101,7 @@ Update `ai-assistant-service.ts` to route complex queries to CLAW:
 **Time Estimate:** 3-4 hours
 
 #### Step 2.1: MCP Client Implementation
-Complete `packages/backend/src/services/nora-mcp-client.ts`:
+Complete `packages/backend/src/services/caresync-mcp-client.ts`:
 
 ```typescript
 interface CareSyncMCPClient {
@@ -201,9 +201,9 @@ AI_API_KEY=sk-...
 # NEW - Add these
 CLAW_AGENT_URL=http://localhost:8000
 CLAW_API_KEY=your-claw-api-key
-NORA_MCP_CONNECTION=stdio
-NORA_MCP_COMMAND=npx
-NORA_MCP_ARGS=-y,@norarx/mcp-server
+CARESYNC_MCP_CONNECTION=stdio
+CARESYNC_MCP_COMMAND=npx
+CARESYNC_MCP_ARGS=-y,@caresync/mcp-server
 ```
 
 ---

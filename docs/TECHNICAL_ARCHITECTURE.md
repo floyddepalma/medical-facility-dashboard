@@ -153,7 +153,7 @@ The Medical Facility Dashboard is a distributed system consisting of multiple co
 
 #### CareSync MCP Client
 ```typescript
-// packages/backend/src/services/nora-mcp-client.ts
+// packages/backend/src/services/caresync-mcp-client.ts
 - MCP protocol implementation
 - Policy CRUD operations
 - Scheduling validation

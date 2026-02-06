@@ -232,7 +232,7 @@ curl -X PUT http://localhost:3000/api/rooms/ROOM_ID/status \
 
 ## 📝 Notes
 
-- All "Nora" references have been rebranded to "CareSync"
+- Complete CareSync branding throughout codebase
 - Demo data uses generic names suitable for any client
 - Token-based authentication for all integrations
 - Graceful degradation when external systems offline
@@ -271,7 +271,7 @@ curl -X PUT http://localhost:3000/api/rooms/ROOM_ID/status \
 
 ## 🎉 Major Milestones Achieved
 
-1. ✅ Complete rebranding from Nora to CareSync
+1. ✅ Complete CareSync branding implementation
 2. ✅ Full webhook infrastructure for external integrations
 3. ✅ CLAW agent client with auto-broadcasting
 4. ✅ Real-time WebSocket system (backend + frontend)
