@@ -5,6 +5,8 @@ import FacilityStatusPanel from './FacilityStatusPanel';
 import ActionItemsList from './ActionItemsList';
 import TasksList from './TasksList';
 import MetricsPanel from './MetricsPanel';
+import Toast, { useToast } from './Toast';
+import StatusDetailModal, { DetailCategory } from './StatusDetailModal';
 
 interface DashboardProps {
   user: User;
@@ -17,10 +19,12 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [metrics, setMetrics] = useState<DailyMetrics | null>(null);
   const [loading, setLoading] = useState(true);
+  const [detailCategory, setDetailCategory] = useState<DetailCategory | null>(null);
+  const { messages, addToast, dismissToast } = useToast();
 
   useEffect(() => {
     loadData();
-    const interval = setInterval(loadData, 10000); // Refresh every 10s
+    const interval = setInterval(loadData, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -32,7 +36,6 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
         api.getTasks(),
         api.getDailyMetrics(),
       ]);
-
       setFacilityStatus(statusData);
       setActions(actionsData.actions);
       setTasks(tasksData.tasks);
@@ -47,38 +50,56 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
   async function handleActionUpdate(id: string, status: string) {
     try {
       await api.updateAction(id, { status });
+      const label = status === 'completed' ? 'completed' : 'started';
+      addToast(`Action item ${label} successfully`, 'success');
       await loadData();
     } catch (err) {
       console.error('Failed to update action:', err);
+      addToast('Failed to update action item', 'error');
     }
   }
 
   async function handleTaskUpdate(id: string, status: string) {
     try {
       await api.updateTask(id, { status });
+      const label = status === 'completed' ? 'completed' : 'started';
+      addToast(`Task ${label} successfully`, 'success');
       await loadData();
     } catch (err) {
       console.error('Failed to update task:', err);
+      addToast('Failed to update task', 'error');
     }
   }
 
   if (loading) {
     return (
-      <div className="container" style={{ padding: '24px' }}>
-        <div style={{ textAlign: 'center', padding: '48px', color: '#6b7280' }}>
-          Loading dashboard...
+      <div className="container">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {[200, 120, 120].map((h, i) => (
+            <div key={i} className="skeleton" style={{ height: `${h}px`, borderRadius: '12px' }} />
+          ))}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container" style={{ padding: '24px' }}>
-      <h2 style={{ marginBottom: '24px', fontSize: '24px', fontWeight: 600 }}>
-        Medical Facility Dashboard
-      </h2>
+    <div className="container">
+      <div style={{ marginBottom: '28px' }}>
+        <h2 style={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em' }}>
+          Dashboard
+        </h2>
+        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+          Real-time facility overview and operations
+        </p>
+      </div>
 
-      {facilityStatus && <FacilityStatusPanel status={facilityStatus} />}
+      {facilityStatus && (
+        <FacilityStatusPanel
+          status={facilityStatus}
+          onDrillDown={(cat) => setDetailCategory(cat)}
+        />
+      )}
 
       <div className="grid grid-2">
         <ActionItemsList actions={actions} onUpdate={handleActionUpdate} />
@@ -86,6 +107,9 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
       </div>
 
       {metrics && <MetricsPanel metrics={metrics} />}
+
+      <Toast messages={messages} onDismiss={dismissToast} />
+      <StatusDetailModal category={detailCategory} onClose={() => setDetailCategory(null)} />
     </div>
   );
 }

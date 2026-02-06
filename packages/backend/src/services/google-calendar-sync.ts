@@ -199,7 +199,7 @@ export class GoogleCalendarSync {
   /**
    * Delete appointments that no longer exist in Google Calendar
    */
-  async cleanupDeletedEvents(doctorId: string): Promise<void> {
+  async cleanupDeletedEvents(_doctorId: string): Promise<void> {
     // This would require tracking which events were seen in the last sync
     // For MVP, we'll skip this and just let old appointments remain
     // You can implement this later if needed

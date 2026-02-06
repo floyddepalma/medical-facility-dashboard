@@ -42,107 +42,166 @@ function App() {
   }
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return (
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        minHeight: '100vh', color: 'var(--text-secondary)', fontSize: '15px',
+      }}>
+        Loading...
+      </div>
+    );
   }
 
   if (!user) {
     return <Login onLogin={handleLogin} />;
   }
 
+  const roleLabel = user.role === 'doctor' ? 'Doctor'
+    : user.role === 'medical_assistant' ? 'Medical Assistant'
+    : 'Admin';
+
   return (
-    <>
-      {/* Sticky Navigation Header */}
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {/* Navigation */}
       <nav style={{
         position: 'sticky',
         top: 0,
         zIndex: 1000,
-        backgroundColor: '#1f2937',
-        padding: '12px 0',
-        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+        backgroundColor: 'var(--bg-nav)',
+        boxShadow: 'var(--shadow-nav)',
+        padding: '0',
       }}>
         <div style={{
-          maxWidth: '1400px',
+          maxWidth: '1280px',
           margin: '0 auto',
           padding: '0 24px',
           display: 'flex',
-          gap: '16px',
           alignItems: 'center',
+          height: '56px',
         }}>
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-            <button
-              onClick={() => setCurrentView('dashboard')}
-              style={{
-                backgroundColor: currentView === 'dashboard' ? '#3b82f6' : 'transparent',
-                color: 'white',
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: 500,
-              }}
-            >
-              Dashboard
-            </button>
-            <button
-              onClick={() => setCurrentView('calendar')}
-              style={{
-                backgroundColor: currentView === 'calendar' ? '#3b82f6' : 'transparent',
-                color: 'white',
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: 500,
-              }}
-            >
-              Calendar
-            </button>
+          {/* Logo / Brand */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            marginRight: '32px',
+          }}>
+            <div style={{
+              width: '32px', height: '32px', borderRadius: '8px',
+              background: 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'white', fontWeight: 700, fontSize: '14px',
+            }}>
+              MF
+            </div>
+            <span style={{
+              color: 'var(--text-on-primary)',
+              fontSize: '15px',
+              fontWeight: 600,
+              letterSpacing: '-0.01em',
+            }}>
+              MedFacility
+            </span>
           </div>
+
+          {/* Nav Links */}
+          <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+            {(['dashboard', 'calendar'] as View[]).map(view => (
+              <button
+                key={view}
+                onClick={() => setCurrentView(view)}
+                aria-current={currentView === view ? 'page' : undefined}
+                style={{
+                  backgroundColor: currentView === view ? 'var(--bg-nav-hover)' : 'transparent',
+                  color: currentView === view ? 'var(--text-on-primary)' : 'var(--text-on-nav)',
+                  border: 'none',
+                  borderBottom: currentView === view ? '2px solid var(--color-primary)' : '2px solid transparent',
+                  padding: '8px 16px',
+                  borderRadius: '6px 6px 0 0',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: currentView === view ? 600 : 400,
+                  transition: 'all 0.15s ease',
+                  minHeight: '40px',
+                }}
+              >
+                {view.charAt(0).toUpperCase() + view.slice(1)}
+              </button>
+            ))}
+          </div>
+
+          {/* Right side */}
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '16px' }}>
             <button
               onClick={toggleTheme}
+              aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
               style={{
-                backgroundColor: 'transparent',
-                color: 'white',
-                border: '1px solid #4b5563',
-                padding: '6px 12px',
-                borderRadius: '4px',
+                backgroundColor: 'var(--bg-nav-hover)',
+                color: 'var(--text-on-nav)',
+                border: 'none',
+                padding: '6px 14px',
+                borderRadius: '6px',
                 cursor: 'pointer',
                 fontSize: '13px',
+                fontWeight: 500,
+                minHeight: '34px',
+                transition: 'all 0.15s ease',
               }}
-              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
             >
               {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
             </button>
-            <div style={{ color: '#d1d5db', fontSize: '14px' }}>
-              {user.name} {user.role === 'doctor' && '(Doctor)'}
-              {user.role === 'medical_assistant' && '(Medical Assistant)'}
-              {user.role === 'admin' && '(Admin)'}
+
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '10px',
+              padding: '4px 12px 4px 4px',
+              borderRadius: '8px',
+              backgroundColor: 'var(--bg-nav-hover)',
+            }}>
+              <div style={{
+                width: '32px', height: '32px', borderRadius: '50%',
+                background: 'var(--color-secondary)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: 'white', fontSize: '13px', fontWeight: 600,
+              }}>
+                {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+              </div>
+              <div>
+                <div style={{ color: 'var(--text-on-primary)', fontSize: '13px', fontWeight: 500, lineHeight: 1.3 }}>
+                  {user.name}
+                </div>
+                <div style={{ color: 'var(--text-on-nav)', fontSize: '11px', lineHeight: 1.3 }}>
+                  {roleLabel}
+                </div>
+              </div>
             </div>
+
             <button
               onClick={handleLogout}
               style={{
-                backgroundColor: '#374151',
-                color: 'white',
-                border: 'none',
-                padding: '6px 12px',
-                borderRadius: '4px',
+                backgroundColor: 'transparent',
+                color: 'var(--text-on-nav)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                padding: '6px 14px',
+                borderRadius: '6px',
                 cursor: 'pointer',
                 fontSize: '13px',
+                fontWeight: 500,
+                minHeight: '34px',
+                transition: 'all 0.15s ease',
               }}
             >
-              Logout
+              Sign Out
             </button>
           </div>
         </div>
       </nav>
 
-      {/* View Content */}
-      {currentView === 'dashboard' && <Dashboard user={user} onLogout={handleLogout} />}
-      {currentView === 'calendar' && <CalendarView user={user} />}
-    </>
+      {/* Content */}
+      <main style={{ flex: 1 }}>
+        {currentView === 'dashboard' && <Dashboard user={user} onLogout={handleLogout} />}
+        {currentView === 'calendar' && <CalendarView user={user} />}
+      </main>
+    </div>
   );
 }
 
