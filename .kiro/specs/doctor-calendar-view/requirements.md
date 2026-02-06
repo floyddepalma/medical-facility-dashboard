@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The Doctor Calendar View feature provides a visual interface for doctors and medical assistants to view and manage appointment schedules. This feature integrates with the existing CareSync MCP Server to display appointments and enables doctors to interact with their schedules through the dashboard interface, complementing the existing Telegram UI.
+The Doctor Calendar View feature provides a visual interface for doctors and medical assistants to view and manage appointment schedules. This feature integrates with the CareSync MCP Server to display appointments and enables doctors to interact with their schedules through the dashboard interface, complementing the existing Telegram UI.
 
 ## Glossary
 
