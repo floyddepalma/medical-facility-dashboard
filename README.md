@@ -52,43 +52,53 @@ Monorepo with separate frontend and backend packages:
 - Node.js 18+ and npm
 - PostgreSQL 14+
 - Redis 6+
-- Access to Nora RX MCP Server
-- Open CLAW Agent instance
 
-### Installation
+### Quick Start
 
 ```bash
-# Install dependencies (once package.json is created)
+# 1. Install dependencies
 npm install
 
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your configuration
+# 2. Set up backend environment
+cp packages/backend/.env.example packages/backend/.env
+# Edit packages/backend/.env with your database credentials
 
-# Run database migrations
+# 3. Set up database
+cd packages/backend
 npm run db:migrate
-
-# Seed database (optional)
 npm run db:seed
+cd ../..
+
+# 4. Start both servers
+npm run dev
 ```
 
-### Development
+The backend will run on `http://localhost:3000` and frontend on `http://localhost:5173`.
+
+### Test Credentials
+
+After seeding the database:
+- **Admin**: `admin@clinic.com` / `password123`
+- **Doctor**: `sarah.johnson@clinic.com` / `password123`
+- **Medical Assistant**: `assistant@clinic.com` / `password123`
+
+### Development Commands
 
 ```bash
-# Start development servers
+# Start all development servers
 npm run dev
 
 # Run tests
 npm test
-
-# Run property-based tests
-npm run test:property
 
 # Type checking
 npm run type-check
 
 # Linting
 npm run lint
+
+# Build for production
+npm run build
 ```
 
 ## Testing Strategy
