@@ -6,8 +6,13 @@ interface Props {
   onUpdate: (id: string, status: string) => void;
 }
 
+const MAX_QUEUE_SIZE = 10;
+
 export default function ActionItemsList({ actions, onUpdate }: Props) {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+
+  // Queue behavior: show only the most recent MAX_QUEUE_SIZE items
+  const displayActions = actions.slice(0, MAX_QUEUE_SIZE);
 
   function formatTimeWaiting(ms: number): string {
     const minutes = Math.floor(ms / 60000);
@@ -26,16 +31,23 @@ export default function ActionItemsList({ actions, onUpdate }: Props) {
     <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '20px' }}>
         <h2 style={{ margin: 0 }}>Action Required</h2>
-        <span style={{
-          fontSize: '12px', fontWeight: 600, padding: '3px 10px',
-          borderRadius: '20px', background: actions.length > 0 ? 'var(--color-accent-danger-light)' : 'var(--bg-surface-raised)',
-          color: actions.length > 0 ? 'var(--color-accent-danger)' : 'var(--text-tertiary)',
-        }}>
-          {actions.length}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {actions.length > MAX_QUEUE_SIZE && (
+            <span style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>
+              +{actions.length - MAX_QUEUE_SIZE} more
+            </span>
+          )}
+          <span style={{
+            fontSize: '12px', fontWeight: 600, padding: '3px 10px',
+            borderRadius: '20px', background: actions.length > 0 ? 'var(--color-accent-danger-light)' : 'var(--bg-surface-raised)',
+            color: actions.length > 0 ? 'var(--color-accent-danger)' : 'var(--text-tertiary)',
+          }}>
+            {actions.length}
+          </span>
+        </div>
       </div>
 
-      {actions.length === 0 ? (
+      {displayActions.length === 0 ? (
         <div className="empty-state">
           <div className="empty-state-icon" aria-hidden="true">✓</div>
           <div className="empty-state-text">All clear</div>
@@ -43,7 +55,7 @@ export default function ActionItemsList({ actions, onUpdate }: Props) {
         </div>
       ) : (
         <div style={{ flex: 1 }}>
-          {actions.map((action) => {
+          {displayActions.map((action) => {
             const isUpdating = updatingId === action.id;
             return (
               <div key={action.id} className="list-item"

@@ -108,6 +108,7 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
             <FacilityStatusPanel
               status={facilityStatus}
               onDrillDown={(cat) => setDetailCategory(cat)}
+              activeCategory={detailCategory}
             />
           )}
 

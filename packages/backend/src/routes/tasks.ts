@@ -5,6 +5,7 @@ import { authenticateToken, AuthRequest } from '../middleware/auth';
 import { validateBody, validateParams, validateQuery } from '../middleware/validation';
 import { asyncHandler, AppError } from '../utils/error-handler';
 import { Task } from '../types';
+import { Response } from 'express';
 
 const router = Router();
 
@@ -20,37 +21,44 @@ router.get(
   '/',
   authenticateToken,
   validateQuery(querySchema),
-  asyncHandler(async (req: AuthRequest, res) => {
+  asyncHandler(async (req: AuthRequest, res: Response) => {
     const { status, assignee, doctorId, type } = req.query as any;
 
-    let query = 'SELECT * FROM tasks WHERE 1=1';
+    let query = `
+      SELECT 
+        t.*,
+        u.name as assignee_name
+      FROM tasks t
+      LEFT JOIN users u ON t.assignee = u.id::text
+      WHERE 1=1
+    `;
     const params: any[] = [];
     let paramCount = 1;
 
     if (status) {
-      query += ` AND status = $${paramCount++}`;
+      query += ` AND t.status = $${paramCount++}`;
       params.push(status);
     } else {
       // Default to non-completed tasks
-      query += ` AND status IN ('pending', 'in_progress')`;
+      query += ` AND t.status IN ('pending', 'in_progress')`;
     }
 
     if (assignee) {
-      query += ` AND assignee = $${paramCount++}`;
+      query += ` AND t.assignee = $${paramCount++}`;
       params.push(assignee);
     }
 
     if (doctorId) {
-      query += ` AND doctor_id = $${paramCount++}`;
+      query += ` AND t.doctor_id = $${paramCount++}`;
       params.push(doctorId);
     }
 
     if (type) {
-      query += ` AND type = $${paramCount++}`;
+      query += ` AND t.type = $${paramCount++}`;
       params.push(type);
     }
 
-    query += ' ORDER BY start_time DESC';
+    query += ' ORDER BY t.start_time DESC';
 
     const result = await pool.query(query, params);
 
@@ -58,7 +66,7 @@ router.get(
       id: row.id,
       type: row.type,
       description: row.description,
-      assignee: row.assignee,
+      assignee: row.assignee === 'agent' ? 'agent' : (row.assignee_name || row.assignee),
       status: row.status,
       doctorId: row.doctor_id,
       roomId: row.room_id,
@@ -84,25 +92,29 @@ router.get(
       limit: z.string().transform(Number).optional(),
     })
   ),
-  asyncHandler(async (req: AuthRequest, res) => {
+  asyncHandler(async (req: AuthRequest, res: Response) => {
     const { date, limit } = req.query as any;
 
     let query = `
-      SELECT * FROM tasks 
-      WHERE status = 'completed'
+      SELECT 
+        t.*,
+        u.name as assignee_name
+      FROM tasks t
+      LEFT JOIN users u ON t.assignee = u.id::text
+      WHERE t.status = 'completed'
     `;
     const params: any[] = [];
     let paramCount = 1;
 
     if (date) {
-      query += ` AND DATE(start_time) = $${paramCount++}`;
+      query += ` AND DATE(t.start_time) = $${paramCount++}`;
       params.push(date);
     } else {
       // Default to today
-      query += ` AND DATE(start_time) = CURRENT_DATE`;
+      query += ` AND DATE(t.start_time) = CURRENT_DATE`;
     }
 
-    query += ` ORDER BY end_time DESC`;
+    query += ` ORDER BY t.end_time DESC`;
 
     if (limit) {
       query += ` LIMIT $${paramCount++}`;
@@ -115,7 +127,7 @@ router.get(
       id: row.id,
       type: row.type,
       description: row.description,
-      assignee: row.assignee,
+      assignee: row.assignee === 'agent' ? 'agent' : (row.assignee_name || row.assignee),
       status: row.status,
       doctorId: row.doctor_id,
       roomId: row.room_id,
@@ -145,7 +157,7 @@ router.post(
   '/',
   authenticateToken,
   validateBody(createTaskSchema),
-  asyncHandler(async (req: AuthRequest, res) => {
+  asyncHandler(async (req: AuthRequest, res: Response) => {
     const task = req.body;
 
     const result = await pool.query(
@@ -184,7 +196,7 @@ router.put(
   authenticateToken,
   validateParams(z.object({ id: z.string().uuid() })),
   validateBody(updateTaskSchema),
-  asyncHandler(async (req: AuthRequest, res) => {
+  asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { status, assignee, notes } = req.body;
 

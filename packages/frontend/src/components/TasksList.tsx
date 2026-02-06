@@ -6,11 +6,15 @@ interface Props {
   onUpdate: (id: string, status: string) => void;
 }
 
+const MAX_QUEUE_SIZE = 10;
+
 export default function TasksList({ tasks, onUpdate }: Props) {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
-  const agentTasks = tasks.filter(t => t.assignee === 'agent');
-  const staffTasks = tasks.filter(t => t.assignee !== 'agent');
+  // Queue behavior: show only the most recent MAX_QUEUE_SIZE items
+  const displayTasks = tasks.slice(0, MAX_QUEUE_SIZE);
+  const agentTasks = displayTasks.filter(t => t.assignee === 'agent');
+  const staffTasks = displayTasks.filter(t => t.assignee !== 'agent');
 
   async function handleUpdate(id: string, status: string) {
     setUpdatingId(id);
@@ -22,13 +26,20 @@ export default function TasksList({ tasks, onUpdate }: Props) {
     <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '16px' }}>
         <h2 style={{ margin: 0 }}>Operational Tasks</h2>
-        <span style={{
-          fontSize: '12px', fontWeight: 600, padding: '3px 10px',
-          borderRadius: '20px', background: 'var(--bg-surface-raised)',
-          color: 'var(--text-secondary)',
-        }}>
-          {tasks.length}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {tasks.length > MAX_QUEUE_SIZE && (
+            <span style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>
+              +{tasks.length - MAX_QUEUE_SIZE} more
+            </span>
+          )}
+          <span style={{
+            fontSize: '12px', fontWeight: 600, padding: '3px 10px',
+            borderRadius: '20px', background: 'var(--bg-surface-raised)',
+            color: 'var(--text-secondary)',
+          }}>
+            {tasks.length}
+          </span>
+        </div>
       </div>
 
       <div style={{
@@ -47,7 +58,7 @@ export default function TasksList({ tasks, onUpdate }: Props) {
         </div>
       </div>
 
-      {tasks.length === 0 ? (
+      {displayTasks.length === 0 ? (
         <div className="empty-state">
           <div className="empty-state-icon" aria-hidden="true">📋</div>
           <div className="empty-state-text">No active tasks</div>
@@ -55,7 +66,7 @@ export default function TasksList({ tasks, onUpdate }: Props) {
         </div>
       ) : (
         <div style={{ flex: 1 }}>
-          {tasks.map((task) => {
+          {displayTasks.map((task) => {
             const isUpdating = updatingId === task.id;
             return (
               <div key={task.id} className="list-item"
@@ -64,11 +75,14 @@ export default function TasksList({ tasks, onUpdate }: Props) {
                   opacity: isUpdating ? 0.5 : 1,
                   transition: 'opacity 0.2s ease',
                 }}>
-                {/* Top row: badges */}
+                {/* Top row: badges and metadata */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                   <span className={`badge ${task.status}`}>{task.status.replace('_', ' ')}</span>
                   <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>
-                    {task.assignee === 'agent' ? 'AI Agent' : task.assignee}
+                    {task.assignee === 'agent' ? '🤖 AI Agent' : `👤 ${task.assignee}`}
+                  </span>
+                  <span style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginLeft: 'auto' }}>
+                    {new Date(task.startTime).toLocaleTimeString()}
                   </span>
                 </div>
                 {/* Title */}
@@ -76,12 +90,8 @@ export default function TasksList({ tasks, onUpdate }: Props) {
                   {task.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                 </div>
                 {/* Description */}
-                <div style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '4px' }}>
+                <div style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '12px' }}>
                   {task.description}
-                </div>
-                {/* Timestamp */}
-                <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginBottom: '12px' }}>
-                  Started {new Date(task.startTime).toLocaleTimeString()}
                 </div>
                 {/* Buttons — right-aligned at bottom, matching ActionItemsList */}
                 {task.status !== 'completed' && (

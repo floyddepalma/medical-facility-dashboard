@@ -16,6 +16,7 @@ import actionsRoutes from './routes/actions';
 import tasksRoutes from './routes/tasks';
 import metricsRoutes from './routes/metrics';
 import doctorsRoutes from './routes/doctors';
+import chatRoutes from './routes/chat';
 import { createCalendarRouter } from './routes/calendar';
 
 // Load environment variables
@@ -47,6 +48,7 @@ app.use('/api/actions', actionsRoutes);
 app.use('/api/tasks', tasksRoutes);
 app.use('/api/metrics', metricsRoutes);
 app.use('/api/doctors', doctorsRoutes);
+app.use('/api/chat', chatRoutes);
 app.use('/api/calendar', createCalendarRouter(pool));
 
 // 404 handler

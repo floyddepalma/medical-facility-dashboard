@@ -121,6 +121,29 @@ class ApiClient {
   async getDoctors(): Promise<{ doctors: Doctor[] }> {
     return this.request('/doctors');
   }
+
+  // Chat
+  async sendChatMessage(
+    message: string,
+    context: {
+      currentContext: 'facility' | 'doctor_calendar';
+      activeDoctorId?: string;
+      conversationHistory: Array<{ role: 'user' | 'assistant' | 'system'; content: string }>;
+    }
+  ): Promise<{
+    message: string;
+    context: {
+      currentContext: 'facility' | 'doctor_calendar';
+      activeDoctorId?: string;
+      conversationHistory: Array<{ role: 'user' | 'assistant' | 'system'; content: string }>;
+    };
+    toolCalls?: Array<{ name: string; arguments: Record<string, any>; result?: any }>;
+  }> {
+    return this.request('/chat', {
+      method: 'POST',
+      body: JSON.stringify({ message, context }),
+    });
+  }
 }
 
 export const api = new ApiClient();

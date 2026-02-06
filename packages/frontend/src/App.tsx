@@ -5,6 +5,7 @@ import { useTheme } from './contexts/ThemeContext';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import CalendarView from './components/CalendarView';
+import AIAssistant from './components/AIAssistant';
 
 type View = 'dashboard' | 'calendar';
 
@@ -13,9 +14,18 @@ function App() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentView, setCurrentView] = useState<View>('dashboard');
+  const [lastUpdate, setLastUpdate] = useState(new Date());
 
   useEffect(() => {
     checkAuth();
+  }, []);
+
+  useEffect(() => {
+    // Update timestamp every 10 seconds
+    const interval = setInterval(() => {
+      setLastUpdate(new Date());
+    }, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   async function checkAuth() {
@@ -91,12 +101,22 @@ function App() {
           height: '56px',
         }}>
           {/* Logo / Brand */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            marginRight: '32px',
-          }}>
+          <div
+            onClick={() => setCurrentView('dashboard')}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setCurrentView('dashboard'); } }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              marginRight: '32px',
+              cursor: 'pointer',
+              transition: 'opacity 0.15s ease',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
+          >
             <div style={{
               width: '32px', height: '32px', borderRadius: '8px',
               background: 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))',
@@ -212,6 +232,60 @@ function App() {
         {currentView === 'dashboard' && <Dashboard user={user} onLogout={handleLogout} />}
         {currentView === 'calendar' && <CalendarView user={user} />}
       </main>
+
+      {/* AI Assistant */}
+      <AIAssistant />
+
+      {/* Footer */}
+      <footer style={{
+        borderTop: '1px solid var(--border-default)',
+        backgroundColor: 'var(--bg-surface)',
+        padding: '12px 24px',
+        fontSize: '12px',
+        color: 'var(--text-tertiary)',
+      }}>
+        <div style={{
+          maxWidth: '1280px',
+          margin: '0 auto',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                background: 'var(--color-accent-success)',
+              }} />
+              <span>System Operational</span>
+            </div>
+            <span style={{ color: 'var(--text-tertiary)' }}>•</span>
+            <span>Last updated: {lastUpdate.toLocaleTimeString()}</span>
+          </div>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <span>v1.0.0</span>
+            <span style={{ color: 'var(--text-tertiary)' }}>•</span>
+            <a
+              href="#"
+              onClick={(e) => { e.preventDefault(); alert('Support: support@medfacility.com'); }}
+              style={{
+                color: 'var(--color-primary)',
+                textDecoration: 'none',
+                transition: 'opacity 0.15s ease',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.7'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
+            >
+              Help & Support
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
