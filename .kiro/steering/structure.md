@@ -44,7 +44,7 @@ Monorepo structure with frontend and backend packages.
 │       │   │   ├── metrics.ts
 │       │   │   └── doctors.ts
 │       │   ├── services/
-│       │   │   ├── nora-mcp-client.ts
+│       │   │   ├── caresync-mcp-client.ts
 │       │   │   ├── claw-agent-client.ts
 │       │   │   └── websocket-server.ts
 │       │   ├── models/
@@ -77,7 +77,7 @@ React dashboard UI with real-time updates:
 ### `packages/backend/`
 Node.js API server and integration layer:
 - **Routes**: REST API endpoints organized by domain
-- **Services**: External integrations (Nora RX MCP, Open CLAW Agent)
+- **Services**: External integrations (CareSync MCP, Open CLAW Agent)
 - **Models**: Data models and database access
 - **Middleware**: Auth, validation, audit logging
 
@@ -90,7 +90,7 @@ Core entities (see design.md for full schemas):
 - **Equipment**: Medical equipment with operational status
 - **ActionItem**: Items requiring human attention
 - **Task**: Operational tasks (staff or AI-assigned)
-- **Policy**: Scheduling policies (via Nora RX MCP)
+- **Policy**: Scheduling policies (via CareSync MCP)
 - **FacilityStatus**: Real-time facility operational state
 - **DailyMetrics**: Performance metrics and trends
 
@@ -120,7 +120,7 @@ Core entities (see design.md for full schemas):
 - `PUT /api/tasks/:id` - Update task
 - `GET /api/tasks/history` - Completed tasks
 
-### Scheduling Policies (via Nora RX MCP)
+### Scheduling Policies (via CareSync MCP)
 - `GET /api/policies` - List policies
 - `GET /api/policies/:id` - Get policy details
 - `POST /api/policies` - Create policy

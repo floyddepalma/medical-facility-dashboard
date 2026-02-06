@@ -12,7 +12,7 @@ Enable medical staff to focus on patient care by surfacing only what requires hu
 
 - **Operational Status**: Real-time visibility into rooms, equipment, and patient flow
 - **Action Management**: Prioritized list of items requiring human attention
-- **Scheduling Policies**: Manage doctor availability and appointment rules via Nora RX MCP Server
+- **Scheduling Policies**: Manage doctor availability and appointment rules via CareSync MCP Server
 - **Task Coordination**: Track operational tasks handled by staff or AI agent
 - **Multi-Doctor Support**: Medical assistants can manage multiple doctors from unified view
 - **Performance Metrics**: Daily operations summary and trend analysis

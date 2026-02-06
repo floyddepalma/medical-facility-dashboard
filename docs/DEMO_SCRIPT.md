@@ -14,7 +14,7 @@
 - [ ] Database seeded with demo data
 - [ ] OpenAI API key configured
 - [ ] Open CLAW agent running (or mock enabled)
-- [ ] Nora RX MCP server running (or mock enabled)
+- [ ] CareSync MCP server running (or mock enabled)
 - [ ] Test all workflows end-to-end
 
 ### Demo Data Verification
@@ -179,7 +179,7 @@ Password: password123
 **Say:**
 "Sarah can create tasks by just asking. No forms to fill out. The AI handles the details."
 
-#### 4.5 Policy Query (if Nora MCP integrated)
+#### 4.5 Policy Query (if CareSync MCP integrated)
 
 **Type:** "What's Dr. Smith's lunch break policy?"
 
@@ -272,7 +272,7 @@ Password: password123
 A: "The AI agent follows configurable rules and policies. It handles routine, predictable tasks autonomously. When it encounters ambiguity, exceptions, or policy conflicts, it creates an action item for human review. We call this 'human-in-the-loop' - the AI is smart enough to know when it needs help."
 
 **Q: "What if the AI makes a mistake?"**
-A: "All AI actions are logged and auditable. Staff can review, override, or correct any AI decision. The system learns from corrections. Plus, critical actions like scheduling always go through policy validation via the Nora RX MCP server."
+A: "All AI actions are logged and auditable. Staff can review, override, or correct any AI decision. The system learns from corrections. Plus, critical actions like scheduling always go through policy validation via the CareSync MCP server."
 
 **Q: "How secure is patient data?"**
 A: "We follow HIPAA compliance standards. All data is encrypted in transit and at rest. Patient information is anonymized in logs. Role-based access control ensures staff only see what they need. Every action is audited for compliance."

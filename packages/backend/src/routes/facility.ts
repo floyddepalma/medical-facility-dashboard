@@ -1,10 +1,11 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { z } from 'zod';
 import { pool, getRedisClient } from '../db/connection';
 import { authenticateToken, AuthRequest } from '../middleware/auth';
 import { validateBody, validateParams } from '../middleware/validation';
 import { asyncHandler, AppError } from '../utils/error-handler';
 import { FacilityStatus, Room, Equipment } from '../types';
+import { broadcastEvent } from '../services/websocket-server';
 
 const router = Router();
 
@@ -14,7 +15,7 @@ const CACHE_TTL = parseInt(process.env.CACHE_TTL || '10');
 router.get(
   '/status',
   authenticateToken,
-  asyncHandler(async (req: AuthRequest, res) => {
+  asyncHandler(async (_req: AuthRequest, res: Response) => {
     const redis = await getRedisClient();
     
     // Try cache first (if Redis available)
@@ -41,7 +42,7 @@ router.get(
 router.get(
   '/rooms',
   authenticateToken,
-  asyncHandler(async (req: AuthRequest, res) => {
+  asyncHandler(async (_req: AuthRequest, res: Response) => {
     const result = await pool.query(
       `SELECT r.*, 
               json_agg(
@@ -87,7 +88,7 @@ router.put(
   authenticateToken,
   validateParams(z.object({ id: z.string().uuid() })),
   validateBody(updateRoomStatusSchema),
-  asyncHandler(async (req: AuthRequest, res) => {
+  asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { status, currentDoctorId, currentPatientId, estimatedAvailableAt } = req.body;
 
@@ -109,10 +110,12 @@ router.put(
 
     // Invalidate cache
     const redis = await getRedisClient();
-    await redis.del('facility:status');
+    if (redis) {
+      await redis.del('facility:status');
+    }
 
-    // Broadcast update via WebSocket (will implement later)
-    // broadcastRoomUpdate(result.rows[0]);
+    // Broadcast update via WebSocket
+    broadcastEvent('facility', 'room:updated', result.rows[0]);
 
     res.json({ room: result.rows[0] });
   })
@@ -122,7 +125,7 @@ router.put(
 router.get(
   '/equipment',
   authenticateToken,
-  asyncHandler(async (req: AuthRequest, res) => {
+  asyncHandler(async (_req: AuthRequest, res: Response) => {
     const result = await pool.query(
       `SELECT * FROM equipment ORDER BY name`
     );
@@ -153,7 +156,7 @@ router.put(
   authenticateToken,
   validateParams(z.object({ id: z.string().uuid() })),
   validateBody(updateEquipmentSchema),
-  asyncHandler(async (req: AuthRequest, res) => {
+  asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const updates = req.body;
 
@@ -175,9 +178,10 @@ router.put(
 
     // Create action item if equipment needs maintenance or is offline
     if (equipment.status === 'needs_maintenance' || equipment.status === 'offline') {
-      await pool.query(
-        `INSERT INTO action_items (type, urgency, title, description, equipment_id, status, created_by)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      const actionResult = await pool.query(
+        `INSERT INTO action_items (type, urgency, title, description, equipment_id, status, created_by, created_at, time_waiting)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), 0)
+         RETURNING *`,
         [
           'equipment_issue',
           equipment.status === 'offline' ? 'urgent' : 'normal',
@@ -188,6 +192,9 @@ router.put(
           req.user!.id,
         ]
       );
+
+      // Broadcast new action item
+      broadcastEvent('actions', 'action:created', actionResult.rows[0]);
     }
 
     // Invalidate cache (if Redis available)
@@ -195,6 +202,9 @@ router.put(
     if (redis) {
       await redis.del('facility:status');
     }
+
+    // Broadcast equipment update
+    broadcastEvent('facility', 'equipment:updated', equipment);
 
     res.json({ equipment });
   })

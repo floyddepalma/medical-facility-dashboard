@@ -1,4 +1,4 @@
-# Medical Facility Dashboard
+# CareSync Dashboard
 
 A real-time operational management system for small medical practices with multiple doctors. The dashboard serves as a central hub for managing facility operations, scheduling policies, room/equipment status, and task coordination with an AI agent.
 
@@ -10,7 +10,7 @@ This dashboard enables medical staff to focus on patient care by surfacing only 
 
 - **Real-Time Operational Status**: Live visibility into rooms, equipment, and patient flow
 - **Action Management**: Prioritized list of items requiring human attention
-- **Scheduling Policy Management**: Manage doctor availability and appointment rules via Nora RX MCP Server
+- **Scheduling Policy Management**: Manage doctor availability and appointment rules via CareSync MCP Server
 - **Task Coordination**: Track operational tasks handled by staff or AI agent
 - **Multi-Doctor Support**: Medical assistants can manage multiple doctors from a unified view
 - **Performance Metrics**: Daily operations summary and trend analysis
@@ -22,7 +22,7 @@ Monorepo with separate frontend and backend packages:
 - **Frontend**: React with TypeScript, WebSocket client for real-time updates
 - **Backend**: Node.js/Express with TypeScript, WebSocket server (ws library)
 - **Database**: PostgreSQL for persistent data, Redis for caching and real-time state
-- **Integration**: Nora RX MCP Server for scheduling policies, Open CLAW Agent for task automation
+- **Integration**: CareSync MCP Server for scheduling policies, Open CLAW Agent for task automation
 - **Authentication**: JWT-based with role-based access control
 
 ## Project Structure

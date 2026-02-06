@@ -18,7 +18,7 @@ Monorepo with separate frontend and backend packages.
 - **Cache**: Redis for real-time state and caching
 
 ### Integration Layer
-- **Nora RX MCP Server**: Scheduling policy management via MCP client
+- **CareSync MCP Server**: Scheduling policy management via MCP client
 - **Open CLAW Agent**: AI task coordination via HTTP
 
 ### Authentication

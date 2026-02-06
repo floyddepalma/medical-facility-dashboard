@@ -1,8 +1,8 @@
 {
-  "name": "@medical-facility-dashboard/backend",
+  "name": "@caresync-dashboard/backend",
   "version": "1.0.0",
   "private": true,
-  "description": "Backend API server for medical facility dashboard",
+  "description": "Backend API server for CareSync Dashboard",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch --env-file=.env src/index.ts",

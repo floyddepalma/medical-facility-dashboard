@@ -6,6 +6,7 @@ import { validateBody, validateParams, validateQuery } from '../middleware/valid
 import { asyncHandler, AppError } from '../utils/error-handler';
 import { Task } from '../types';
 import { Response } from 'express';
+import { broadcastEvent } from '../services/websocket-server';
 
 const router = Router();
 
@@ -178,7 +179,7 @@ router.post(
     );
 
     // Broadcast via WebSocket
-    // broadcastTaskCreated(result.rows[0]);
+    broadcastEvent('tasks', 'task:created', result.rows[0]);
 
     res.status(201).json({ task: result.rows[0] });
   })
@@ -249,7 +250,7 @@ router.put(
     }
 
     // Broadcast via WebSocket
-    // broadcastTaskUpdated(result.rows[0]);
+    broadcastEvent('tasks', 'task:updated', result.rows[0]);
 
     res.json({ task: result.rows[0] });
   })

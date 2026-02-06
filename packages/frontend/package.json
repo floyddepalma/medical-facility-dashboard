@@ -1,5 +1,5 @@
 {
-  "name": "@medical-facility-dashboard/frontend",
+  "name": "@caresync-dashboard/frontend",
   "version": "1.0.0",
   "private": true,
   "type": "module",

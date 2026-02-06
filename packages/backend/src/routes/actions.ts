@@ -1,10 +1,11 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { z } from 'zod';
 import { pool } from '../db/connection';
 import { authenticateToken, AuthRequest } from '../middleware/auth';
 import { validateBody, validateParams, validateQuery } from '../middleware/validation';
 import { asyncHandler, AppError } from '../utils/error-handler';
 import { ActionItem } from '../types';
+import { broadcastEvent } from '../services/websocket-server';
 
 const router = Router();
 
@@ -20,7 +21,7 @@ router.get(
   '/',
   authenticateToken,
   validateQuery(querySchema),
-  asyncHandler(async (req: AuthRequest, res) => {
+  asyncHandler(async (req: AuthRequest, res: Response) => {
     const { status, urgency, doctorId, type } = req.query as any;
 
     let query = `
@@ -106,7 +107,7 @@ router.post(
   '/',
   authenticateToken,
   validateBody(createActionSchema),
-  asyncHandler(async (req: AuthRequest, res) => {
+  asyncHandler(async (req: AuthRequest, res: Response) => {
     const action = req.body;
 
     const result = await pool.query(
@@ -131,8 +132,8 @@ router.post(
 
     const created = result.rows[0];
 
-    // Broadcast via WebSocket (will implement later)
-    // broadcastActionCreated(created);
+    // Broadcast via WebSocket
+    broadcastEvent('actions', 'action:created', created);
 
     res.status(201).json({ action: created });
   })
@@ -150,7 +151,7 @@ router.put(
   authenticateToken,
   validateParams(z.object({ id: z.string().uuid() })),
   validateBody(updateActionSchema),
-  asyncHandler(async (req: AuthRequest, res) => {
+  asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { status, assignedTo, notes } = req.body;
 
@@ -197,7 +198,7 @@ router.put(
     }
 
     // Broadcast via WebSocket
-    // broadcastActionUpdated(result.rows[0]);
+    broadcastEvent('actions', 'action:updated', result.rows[0]);
 
     res.json({ action: result.rows[0] });
   })
@@ -208,7 +209,7 @@ router.delete(
   '/:id',
   authenticateToken,
   validateParams(z.object({ id: z.string().uuid() })),
-  asyncHandler(async (req: AuthRequest, res) => {
+  asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
 
     const result = await pool.query('DELETE FROM action_items WHERE id = $1 RETURNING id', [id]);
@@ -218,7 +219,7 @@ router.delete(
     }
 
     // Broadcast via WebSocket
-    // broadcastActionDeleted(id);
+    broadcastEvent('actions', 'action:deleted', { id });
 
     res.json({ message: 'Action item deleted', id });
   })

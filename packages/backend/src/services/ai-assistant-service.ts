@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import { clawAgent } from './claw-agent-client';
 import { aiConfig, systemPrompt } from '../config/ai';
 import { pool } from '../db/connection';
 import { User } from '../types';
@@ -245,6 +246,23 @@ class AIAssistantService {
           },
         },
       },
+      {
+        type: 'function',
+        function: {
+          name: 'query_claw_agent',
+          description: 'Query the Open CLAW autonomous agent for recommendations about facility operations, task prioritization, or operational decisions',
+          parameters: {
+            type: 'object',
+            properties: {
+              question: {
+                type: 'string',
+                description: 'The question or context to ask CLAW about',
+              },
+            },
+            required: ['question'],
+          },
+        },
+      },
     ];
 
     return tools;
@@ -270,6 +288,9 @@ class AIAssistantService {
       
       case 'switch_context':
         return { success: true, newContext: args.target, doctorId: args.doctorId };
+      
+      case 'query_claw_agent':
+        return this.queryClawAgent(args.question);
       
       default:
         throw new Error(`Unknown tool: ${name}`);
@@ -362,6 +383,34 @@ class AIAssistantService {
     );
 
     return result.rows[0];
+  }
+
+  private async queryClawAgent(question: string): Promise<any> {
+    try {
+      // Check if CLAW is available
+      if (!clawAgent.isAgentHealthy()) {
+        return {
+          available: false,
+          message: 'CLAW agent is currently offline. I can still help with basic facility queries using the dashboard data.',
+        };
+      }
+
+      // Query CLAW for recommendation
+      const recommendation = await clawAgent.getRecommendation(question);
+      
+      return {
+        available: true,
+        recommendation,
+        source: 'Open CLAW Agent',
+      };
+    } catch (error) {
+      console.error('Error querying CLAW agent:', error);
+      return {
+        available: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        message: 'Unable to reach CLAW agent. I can still help with basic facility queries.',
+      };
+    }
   }
 }
 
