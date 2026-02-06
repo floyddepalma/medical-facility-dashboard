@@ -4,7 +4,7 @@
 
 The Medical Facility Dashboard is a real-time web application that serves as the operational hub for small medical practices. It provides doctors and medical assistants with a unified view of facility operations, enabling them to manage scheduling policies, monitor room and equipment status, coordinate tasks, and respond to situations requiring human attention.
 
-The system integrates with an Open CLAW AI agent (via the Nora RX MCP Server) that autonomously manages scheduling policies and operational tasks. The dashboard surfaces information that requires human decision-making while allowing the AI to handle routine operations in the background.
+The system integrates with an Open CLAW AI agent (via the CareSync MCP Server) that autonomously manages scheduling policies and operational tasks. The dashboard surfaces information that requires human decision-making while allowing the AI to handle routine operations in the background.
 
 ### Key Design Principles
 
@@ -31,7 +31,7 @@ graph TB
     end
     
     subgraph "Integration Layer"
-        MCP[Nora RX MCP Client]
+        MCP[CareSync MCP Client]
         Agent[Open CLAW Agent Interface]
     end
     
@@ -42,7 +42,7 @@ graph TB
     
     subgraph "External Systems"
         CLAW[Open CLAW Agent]
-        NoraRX[Nora RX MCP Server]
+        CareSync[CareSync MCP Server]
     end
     
     UI <-->|HTTPS/WSS| API
@@ -53,9 +53,9 @@ graph TB
     API --> DB
     API --> Cache
     WS --> Cache
-    MCP <-->|stdio/HTTP| NoraRX
+    MCP <-->|stdio/HTTP| CareSync
     Agent <-->|HTTP| CLAW
-    NoraRX --> CLAW
+    CareSync --> CLAW
 ```
 
 ### Technology Stack
@@ -63,13 +63,13 @@ graph TB
 - **Frontend**: React with TypeScript, WebSocket client for real-time updates
 - **Backend**: Node.js with Express, WebSocket server (ws library)
 - **Database**: PostgreSQL for persistent data, Redis for real-time state and caching
-- **Integration**: MCP client library for Nora RX server communication
+- **Integration**: MCP client library for CareSync MCP server communication
 - **Authentication**: JWT-based authentication with role-based access control
 
 ### Communication Patterns
 
 1. **Real-Time Updates**: WebSocket connections push updates to all connected clients
-2. **Policy Management**: REST API calls to Nora RX MCP Server via MCP client
+2. **Policy Management**: REST API calls to CareSync MCP Server via MCP client
 3. **Task Coordination**: Event-driven architecture with Redis pub/sub for task updates
 4. **State Synchronization**: Periodic polling (10s) combined with event-driven updates
 
@@ -101,7 +101,7 @@ graph TB
 
 #### 4. Scheduling Policy Manager
 - **Purpose**: View and manage doctor scheduling policies
-- **Data Sources**: Nora RX MCP Server via policy_list, policy_get
+- **Data Sources**: CareSync MCP Server via policy_list, policy_get
 - **Operations**: Create, update, delete policies via policy_create, policy_update, policy_delete
 - **Validation**: Real-time validation via policy_check before committing changes
 - **Display**: Organized by policy type with human-readable explanations via policy_explain
@@ -151,7 +151,7 @@ PUT    /api/actions/:id         - Update action item (mark complete, add notes)
 DELETE /api/actions/:id         - Delete/dismiss action item
 ```
 
-#### Scheduling Policies (via Nora RX MCP)
+#### Scheduling Policies (via CareSync MCP)
 ```
 GET    /api/policies            - List policies (calls policy_list)
 GET    /api/policies/:id        - Get policy details (calls policy_get)
@@ -207,12 +207,12 @@ policy:conflict        - Policy conflict detected
 agent:status           - AI agent status changed
 ```
 
-### Integration with Nora RX MCP Server
+### Integration with CareSync MCP Server
 
-The dashboard communicates with the Nora RX MCP Server to manage scheduling policies. The MCP client wrapper provides:
+The dashboard communicates with the CareSync MCP Server to manage scheduling policies. The MCP client wrapper provides:
 
 ```typescript
-interface NoraMCPClient {
+interface CareSyncMCPClient {
   // List all policies with optional filters
   listPolicies(filters?: {
     doctorId?: string;
@@ -599,7 +599,7 @@ Before defining the correctness properties, I need to analyze each acceptance cr
 
 ### Error Categories
 
-#### 1. Integration Errors (Nora RX MCP Server)
+#### 1. Integration Errors (CareSync MCP Server)
 - **Connection Failures**: MCP server unavailable or not responding
 - **Policy Validation Errors**: Invalid policy configuration or conflicts
 - **Timeout Errors**: MCP operations exceeding timeout threshold
@@ -697,7 +697,7 @@ interface ErrorResponse {
 - `VALIDATION_ERROR`: Input validation failed
 - `NOT_FOUND`: Resource not found
 - `CONFLICT`: Resource conflict (e.g., policy conflict)
-- `MCP_UNAVAILABLE`: Nora RX MCP server unavailable
+- `MCP_UNAVAILABLE`: CareSync MCP server unavailable
 - `AGENT_OFFLINE`: Open CLAW agent offline
 - `AGENT_FAILED`: Agent task execution failed
 - `DATABASE_ERROR`: Database operation failed

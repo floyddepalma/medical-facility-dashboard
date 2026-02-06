@@ -20,11 +20,11 @@ This implementation plan breaks down the Doctor Calendar View feature into incre
     - **Validates: Requirements 1.2**
 
 - [ ] 2. Implement backend calendar service
-  - [ ] 2.1 Extend Nora MCP Client with appointment query methods
+  - [ ] 2.1 Extend CareSync MCP Client with appointment query methods
     - Add `queryAppointments(doctorId, startDate, endDate)` method
     - Add `getTimeBlocks(doctorId, startDate, endDate)` method
     - Add `subscribeToAppointmentUpdates(doctorId, callback)` method
-    - Implement data transformation from Nora format to dashboard format
+    - Implement data transformation from CareSync format to dashboard format
     - Add error handling for MCP connection failures
     - _Requirements: 3.1, 3.2, 3.3_
 
@@ -45,8 +45,8 @@ This implementation plan breaks down the Doctor Calendar View feature into incre
     - **Validates: Requirements 3.4**
 
   - [ ] 2.5 Write unit tests for CalendarService
-    - Test error handling when Nora MCP unavailable
-    - Test data transformation from Nora format
+    - Test error handling when CareSync MCP unavailable
+    - Test data transformation from CareSync format
     - Test cache invalidation on updates
     - _Requirements: 3.3, 11.1, 11.2_
 
@@ -79,7 +79,7 @@ This implementation plan breaks down the Doctor Calendar View feature into incre
     - Add `timeblock:created` event handler
     - Add `timeblock:removed` event handler
     - Implement subscription management for doctor-specific updates
-    - Integrate with Nora MCP subscription callbacks
+    - Integrate with CareSync MCP subscription callbacks
     - _Requirements: 4.1, 4.2_
 
   - [ ] 4.2 Write property test for multi-session synchronization
@@ -94,7 +94,7 @@ This implementation plan breaks down the Doctor Calendar View feature into incre
 
 - [ ] 5. Checkpoint - Backend integration complete
   - Ensure all backend tests pass
-  - Verify Nora MCP integration works with test data
+  - Verify CareSync MCP integration works with test data
   - Verify WebSocket events are broadcasting correctly
   - Ask the user if questions arise
 
@@ -303,7 +303,7 @@ This implementation plan breaks down the Doctor Calendar View feature into incre
 - [ ] 14. Final checkpoint - Ensure all tests pass
   - Run all unit tests and verify 80% coverage
   - Run all property tests (100 iterations each)
-  - Test calendar with real Nora MCP Server integration
+  - Test calendar with real CareSync MCP Server integration
   - Test WebSocket real-time updates
   - Test responsive behavior on different screen sizes
   - Verify role-based access control works correctly
@@ -317,4 +317,4 @@ This implementation plan breaks down the Doctor Calendar View feature into incre
 - Unit tests validate specific examples and edge cases
 - Integration tests verify end-to-end workflows
 - All code should follow existing project structure and naming conventions
-- Use existing services (auth middleware, WebSocket server, Nora MCP client) where possible
+- Use existing services (auth middleware, WebSocket server, CareSync MCP client) where possible

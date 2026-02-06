@@ -2,12 +2,12 @@
 
 ## Introduction
 
-The Doctor Calendar View feature provides a visual interface for doctors and medical assistants to view and manage appointment schedules. This feature integrates with the existing Nora Policy MCP Server to display appointments and enables doctors to interact with their schedules through the dashboard interface, complementing the existing Telegram UI.
+The Doctor Calendar View feature provides a visual interface for doctors and medical assistants to view and manage appointment schedules. This feature integrates with the existing CareSync MCP Server to display appointments and enables doctors to interact with their schedules through the dashboard interface, complementing the existing Telegram UI.
 
 ## Glossary
 
 - **Dashboard**: The web-based medical facility management system
-- **Nora_MCP_Server**: The Model Context Protocol server that manages scheduling policies and appointment data
+- **CareSync_MCP_Server**: The Model Context Protocol server that manages scheduling policies and appointment data
 - **Doctor**: A medical provider with their own appointment schedule
 - **Medical_Assistant**: Staff member who can manage schedules for multiple doctors
 - **Appointment**: A scheduled time slot for patient care with associated metadata
@@ -42,11 +42,11 @@ The Doctor Calendar View feature provides a visual interface for doctors and med
 
 ### Requirement 3: Appointment Data Retrieval
 
-**User Story:** As a system, I want to fetch appointment data from Nora MCP Server, so that the calendar displays accurate scheduling information.
+**User Story:** As a system, I want to fetch appointment data from CareSync MCP Server, so that the calendar displays accurate scheduling information.
 
 #### Acceptance Criteria
 
-1. WHEN the calendar view loads, THE Dashboard SHALL query the Nora_MCP_Server for appointments within the visible date range
+1. WHEN the calendar view loads, THE Dashboard SHALL query the CareSync_MCP_Server for appointments within the visible date range
 2. WHEN the user changes the date range, THE Dashboard SHALL fetch appointments for the new range
 3. WHEN appointment data is unavailable, THE Dashboard SHALL display an error message and retry after 30 seconds
 4. THE Dashboard SHALL cache appointment data for 60 seconds to reduce server load
@@ -132,7 +132,7 @@ The Doctor Calendar View feature provides a visual interface for doctors and med
 
 #### Acceptance Criteria
 
-1. WHEN the Nora_MCP_Server is unavailable, THE Dashboard SHALL display "Unable to load appointments. Retrying..." and attempt reconnection
+1. WHEN the CareSync_MCP_Server is unavailable, THE Dashboard SHALL display "Unable to load appointments. Retrying..." and attempt reconnection
 2. WHEN appointment data fails to load, THE Dashboard SHALL log the error and display a user-friendly message
 3. WHEN a network error occurs during real-time updates, THE Dashboard SHALL continue displaying cached data and indicate the connection status
 4. WHEN an error is resolved, THE Dashboard SHALL automatically refresh the calendar data

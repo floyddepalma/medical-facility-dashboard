@@ -158,7 +158,7 @@ Core entities (see design.md for full schemas):
 
 ## Naming Conventions
 
-- **Files**: kebab-case (e.g., `nora-mcp-client.ts`)
+- **Files**: kebab-case (e.g., `caresync-mcp-client.ts`)
 - **Components**: PascalCase (e.g., `ActionItemsList`)
 - **Functions/Variables**: camelCase (e.g., `calculateOccupancyRate`)
 - **Types/Interfaces**: PascalCase (e.g., `FacilityStatus`)

@@ -65,7 +65,7 @@ Frontend (React) → Backend (Express) → Database (PostgreSQL)
                          ↓
               ┌──────────┴──────────┐
               ↓                     ↓
-        Open CLAW Agent      Nora RX MCP
+        Open CLAW Agent      CareSync MCP
 ```
 
 See [Technical Architecture](./TECHNICAL_ARCHITECTURE.md) for details.
@@ -193,7 +193,7 @@ See [User Guide](./USER_GUIDE.md) for complete instructions.
 
 ### 🔄 In Progress
 - Open CLAW agent integration
-- Nora RX MCP server connection
+- CareSync MCP server connection
 - WebSocket real-time updates
 - Demo data seeding
 
@@ -302,6 +302,6 @@ Built with:
 - PostgreSQL + Redis
 - OpenAI GPT-4o
 - Open CLAW Agent
-- Nora RX MCP Server
+- CareSync MCP Server
 
 Special thanks to the team for making this possible! 🙏

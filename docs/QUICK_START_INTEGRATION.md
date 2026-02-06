@@ -13,7 +13,7 @@
 - [ ] Can it receive facility status updates?
 - [ ] Can it send task/action creation requests?
 
-### 2. Nora RX MCP Server
+### 2. CareSync MCP Server
 - [ ] Is it installed? (`npm install @modelcontextprotocol/sdk`)
 - [ ] Connection type? (stdio, HTTP, WebSocket?)
 - [ ] How to start it? (command line?)
@@ -129,7 +129,7 @@ import webhookRoutes from './routes/webhooks';
 app.use('/api/webhooks', webhookRoutes);
 ```
 
-### Step 2: Nora MCP Integration (3-4 hours)
+### Step 2: CareSync MCP Integration (3-4 hours)
 
 **Install SDK:**
 ```bash
@@ -137,19 +137,19 @@ cd packages/backend
 npm install @modelcontextprotocol/sdk
 ```
 
-**File:** `packages/backend/src/services/nora-mcp-client.ts`
+**File:** `packages/backend/src/services/caresync-mcp-client.ts`
 
 ```typescript
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 
-class NoraMCPClient {
+class CareSyncMCPClient {
   private client: Client | null = null;
 
   async connect(): Promise<void> {
     const transport = new StdioClientTransport({
       command: 'npx',
-      args: ['-y', '@norarx/mcp-server'],
+      args: ['-y', '@caresync/mcp-server'],
     });
 
     this.client = new Client({
@@ -185,17 +185,17 @@ class NoraMCPClient {
   }
 }
 
-export const noraMCP = new NoraMCPClient();
+export const careSyncMCP = new CareSyncMCPClient();
 
 // Connect on startup
-noraMCP.connect().catch(console.error);
+careSyncMCP.connect().catch(console.error);
 ```
 
 ---
 
 ## Option B: Mock Integration (Faster, Demo-Ready)
 
-### If Open CLAW or Nora MCP aren't ready, use mocks:
+### If Open CLAW or CareSync MCP aren't ready, use mocks:
 
 **File:** `packages/backend/src/services/mock-claw-agent.ts`
 

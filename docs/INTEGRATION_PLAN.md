@@ -1,7 +1,7 @@
 # System Integration Plan - Monday Demo
 
 **Demo Date:** Monday 9:00 AM CT  
-**Goal:** Fully functional system with Open CLAW, Nora RX MCP, and Dashboard
+**Goal:** Fully functional system with Open CLAW, CareSync MCP, and Dashboard
 
 ## Current State
 
@@ -14,12 +14,12 @@
 
 ### 🔄 In Progress
 - Open CLAW Agent integration
-- Nora RX MCP Server connection
+- CareSync MCP Server connection
 - WebSocket real-time updates
 
 ### ❌ Not Started
 - Open CLAW → Dashboard communication
-- Nora RX MCP → Dashboard policy sync
+- CareSync MCP → Dashboard policy sync
 - End-to-end workflow testing
 
 ---
@@ -39,7 +39,7 @@
 └────┬───────┬────┘
      │       │
      │       └──────→ ┌─────────────────┐
-     │                │  Nora RX MCP    │ ← Policy Engine
+     │                │  CareSync MCP    │ ← Policy Engine
      │                │  Server         │
      │                └─────────────────┘
      ↓
@@ -97,14 +97,14 @@ Update `ai-assistant-service.ts` to route complex queries to CLAW:
 
 ---
 
-### Phase 2: Nora RX MCP Integration (HIGH PRIORITY)
+### Phase 2: CareSync MCP Integration (HIGH PRIORITY)
 **Time Estimate:** 3-4 hours
 
 #### Step 2.1: MCP Client Implementation
 Complete `packages/backend/src/services/nora-mcp-client.ts`:
 
 ```typescript
-interface NoraMCPClient {
+interface CareSyncMCPClient {
   // Policy Management
   listPolicies(doctorId: string): Promise<Policy[]>;
   createPolicy(doctorId: string, policy: PolicyInput): Promise<Policy>;
@@ -213,8 +213,8 @@ NORA_MCP_ARGS=-y,@norarx/mcp-server
 ### Integration Tests
 - [ ] Dashboard → CLAW: Status updates flowing
 - [ ] CLAW → Dashboard: Tasks created successfully
-- [ ] Dashboard → Nora MCP: Policy queries working
-- [ ] Nora MCP → Dashboard: Policy conflicts detected
+- [ ] Dashboard → CareSync MCP: Policy queries working
+- [ ] CareSync MCP → Dashboard: Policy conflicts detected
 - [ ] AI Assistant: Can query CLAW and MCP
 - [ ] WebSocket: Real-time updates working
 - [ ] Multi-user: Multiple clients connected
@@ -272,7 +272,7 @@ Add `DEMO_MODE=true` environment variable:
 - Real-time update testing
 
 **Saturday Evening (6 PM - 11 PM):**
-- Phase 2: Nora MCP integration
+- Phase 2: CareSync MCP integration
 - Policy management testing
 
 **Saturday Afternoon (12 PM - 6 PM):**
@@ -292,7 +292,7 @@ Add `DEMO_MODE=true` environment variable:
 ✅ Dashboard displays real-time facility status  
 ✅ AI Assistant responds to queries  
 ⚠️ CLAW agent creates tasks autonomously  
-⚠️ Nora MCP validates scheduling policies  
+⚠️ CareSync MCP validates scheduling policies  
 ⚠️ Real-time updates via WebSocket  
 
 ### Nice to Have (Demo Enhancers)
@@ -312,9 +312,9 @@ Add `DEMO_MODE=true` environment variable:
 ## Next Steps (RIGHT NOW)
 
 1. **Document Open CLAW API** - What endpoints does it expose?
-2. **Document Nora MCP Setup** - How do we connect to it?
+2. **Document CareSync MCP Setup** - How do we connect to it?
 3. **Create Mock Services** - Fallback if integration delayed
 4. **Seed Demo Data** - Realistic scenario
 5. **Write Demo Script** - Exact flow to demonstrate
 
-**CRITICAL QUESTION:** Do you have Open CLAW and Nora MCP running locally? What are their connection details?
+**CRITICAL QUESTION:** Do you have Open CLAW and CareSync MCP running locally? What are their connection details?

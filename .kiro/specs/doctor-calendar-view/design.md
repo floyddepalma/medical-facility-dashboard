@@ -2,9 +2,9 @@
 
 ## Overview
 
-The Doctor Calendar View feature provides a visual interface for viewing appointment schedules within the medical facility dashboard. It integrates with the existing Nora Policy MCP Server to fetch appointment data and displays it in daily or weekly calendar formats. The feature supports role-based access, allowing doctors to view their own schedules and medical assistants to view schedules for multiple doctors they manage.
+The Doctor Calendar View feature provides a visual interface for viewing appointment schedules within the medical facility dashboard. It integrates with the existing CareSync MCP Server to fetch appointment data and displays it in daily or weekly calendar formats. The feature supports role-based access, allowing doctors to view their own schedules and medical assistants to view schedules for multiple doctors they manage.
 
-The design emphasizes real-time updates via WebSocket, efficient data fetching with caching, and responsive layouts that work across desktop and mobile devices. The calendar view is read-only, focusing on schedule visibility rather than appointment management (which remains handled by Nora MCP Server and Telegram UI).
+The design emphasizes real-time updates via WebSocket, efficient data fetching with caching, and responsive layouts that work across desktop and mobile devices. The calendar view is read-only, focusing on schedule visibility rather than appointment management (which remains handled by CareSync MCP Server and Telegram UI).
 
 ## Architecture
 
@@ -54,7 +54,7 @@ The design emphasizes real-time updates via WebSocket, efficient data fetching w
                             │ MCP Protocol
                             ▼
 ┌─────────────────────────────────────────────────────────────┐
-│              Nora Policy MCP Server                          │
+│              CareSync MCP Server                          │
 │  - Appointment storage and management                        │
 │  - Scheduling policy enforcement                             │
 │  - Time block management                                     │
@@ -63,8 +63,8 @@ The design emphasizes real-time updates via WebSocket, efficient data fetching w
 
 ### Data Flow
 
-1. **Initial Load**: User navigates to calendar view → Frontend requests appointments for date range → Backend queries Nora MCP Server → Data cached and returned → Frontend renders calendar
-2. **Real-Time Updates**: Appointment created/modified in Nora → Backend receives notification → WebSocket broadcasts to subscribed clients → Frontend updates calendar view
+1. **Initial Load**: User navigates to calendar view → Frontend requests appointments for date range → Backend queries CareSync MCP Server → Data cached and returned → Frontend renders calendar
+2. **Real-Time Updates**: Appointment created/modified in CareSync → Backend receives notification → WebSocket broadcasts to subscribed clients → Frontend updates calendar view
 3. **Date Navigation**: User changes date → Frontend checks cache → If miss, fetch from backend → Update display
 4. **Doctor Switch** (Medical Assistant): User selects different doctor → Frontend fetches appointments for new doctor → Update display
 
@@ -200,34 +200,34 @@ class CalendarService {
    * Format appointment data for frontend consumption
    */
   formatAppointmentData(
-    appointments: NoraMCPAppointment[]
+    appointments: CareSyncMCPAppointment[]
   ): Appointment[]
 }
 ```
 
-#### NoraMCPClient (Extended)
+#### CareSyncMCPClient (Extended)
 
 **New Methods:**
 
 ```typescript
-class NoraMCPClient {
+class CareSyncMCPClient {
   /**
-   * Query appointments from Nora MCP Server
+   * Query appointments from CareSync MCP Server
    */
   async queryAppointments(
     doctorId: string,
     startDate: Date,
     endDate: Date
-  ): Promise<NoraMCPAppointment[]>
+  ): Promise<CareSyncMCPAppointment[]>
 
   /**
-   * Get time blocks from Nora MCP Server
+   * Get time blocks from CareSync MCP Server
    */
   async getTimeBlocks(
     doctorId: string,
     startDate: Date,
     endDate: Date
-  ): Promise<NoraMCPTimeBlock[]>
+  ): Promise<CareSyncMCPTimeBlock[]>
 
   /**
    * Subscribe to appointment updates
@@ -427,7 +427,7 @@ interface AppointmentEvent {
 
 ### Property 5: Date Range Query Correctness
 
-*For any* date range selection, the query to Nora MCP Server should include start and end dates that exactly match the visible calendar range.
+*For any* date range selection, the query to CareSync MCP Server should include start and end dates that exactly match the visible calendar range.
 
 **Validates: Requirements 3.1, 3.2**
 
@@ -507,7 +507,7 @@ interface AppointmentEvent {
 
 ### Error Categories
 
-1. **Network Errors**: Connection failures to Nora MCP Server or WebSocket
+1. **Network Errors**: Connection failures to CareSync MCP Server or WebSocket
 2. **Authorization Errors**: User attempting to access unauthorized calendar data
 3. **Validation Errors**: Invalid date ranges or malformed requests
 4. **Data Errors**: Missing or corrupted appointment data
@@ -516,7 +516,7 @@ interface AppointmentEvent {
 
 #### Network Errors
 
-**Nora MCP Server Unavailable:**
+**CareSync MCP Server Unavailable:**
 - Display user-friendly message: "Unable to load appointments. Retrying..."
 - Implement exponential backoff retry (30s, 60s, 120s)
 - Log error details for debugging
@@ -562,7 +562,7 @@ interface AppointmentEvent {
 - Do not crash or break calendar rendering
 
 **Corrupted Data:**
-- Validate all data from Nora MCP Server
+- Validate all data from CareSync MCP Server
 - Skip invalid appointments with logging
 - Display warning: "Some appointments could not be loaded"
 - Continue rendering valid appointments
@@ -625,7 +625,7 @@ test('appointment rendering includes all required fields', () => {
 - Specific examples of appointment rendering
 - Edge cases (empty calendars, single appointment, 100+ appointments)
 - Error conditions (network failures, invalid data, unauthorized access)
-- Integration points (Nora MCP Client, WebSocket server)
+- Integration points (CareSync MCP Client, WebSocket server)
 - UI interactions (clicking appointments, navigation, doctor selection)
 
 **Example Unit Tests**:
@@ -670,10 +670,10 @@ const dateRangeArbitrary = fc.tuple(fc.date(), fc.date())
 
 ### Integration Testing
 
-**Nora MCP Integration**:
+**CareSync MCP Integration**:
 - Test appointment fetching with real MCP client
-- Verify data transformation from Nora format to dashboard format
-- Test error handling when Nora unavailable
+- Verify data transformation from CareSync format to dashboard format
+- Test error handling when CareSync unavailable
 - Verify subscription to appointment updates
 
 **WebSocket Integration**:

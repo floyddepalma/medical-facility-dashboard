@@ -10,7 +10,7 @@ The Medical Facility Dashboard is a distributed system consisting of multiple co
 ├─────────────────────────────────────────────────────────────┤
 │                                                              │
 │  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐ │
-│  │  Open CLAW   │    │  Nora RX MCP │    │   Telegram   │ │
+│  │  Open CLAW   │    │  CareSync MCP │    │   Telegram   │ │
 │  │    Agent     │    │    Server    │    │     Bot      │ │
 │  └──────┬───────┘    └──────┬───────┘    └──────┬───────┘ │
 │         │                    │                    │          │
@@ -32,7 +32,7 @@ The Medical Facility Dashboard is a distributed system consisting of multiple co
 │  │              │  │              │  │              │    │
 │  │ • AI Assist  │  │ • Auth       │  │ • /auth      │    │
 │  │ • CLAW       │  │ • Validation │  │ • /facility  │    │
-│  │ • Nora MCP   │  │ • Audit Log  │  │ • /chat      │    │
+│  │ • CareSync MCP   │  │ • Audit Log  │  │ • /chat      │    │
 │  │ • Calendar   │  │ • PII Filter │  │ • /calendar  │    │
 │  └──────────────┘  └──────────────┘  └──────────────┘    │
 │                                                              │
@@ -151,7 +151,7 @@ The Medical Facility Dashboard is a distributed system consisting of multiple co
 - Health monitoring
 ```
 
-#### Nora MCP Client
+#### CareSync MCP Client
 ```typescript
 // packages/backend/src/services/nora-mcp-client.ts
 - MCP protocol implementation
@@ -604,7 +604,7 @@ npm run lint
 ### Short Term
 - WebSocket implementation
 - CLAW agent integration
-- Nora MCP integration
+- CareSync MCP integration
 - Google Calendar sync
 
 ### Medium Term

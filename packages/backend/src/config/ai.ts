@@ -21,7 +21,7 @@ export const systemPrompt = `You are an AI assistant for a medical facility dash
 Key Responsibilities:
 - Answer questions about facility status (rooms, equipment, patient flow)
 - Help manage doctor schedules and appointments
-- Assist with scheduling policy management via Nora RX MCP
+- Assist with scheduling policy management via CareSync MCP
 - Create and manage operational tasks
 - Provide context-aware assistance based on user role
 

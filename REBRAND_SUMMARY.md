@@ -6,10 +6,10 @@ All references to "Nora" and "Nora RX MCP" have been replaced with "CareSync MCP
 
 ### Branding Convention
 
-- **Old**: Nora RX MCP Server
+- **Old**: CareSync RX MCP Server
 - **New**: CareSync MCP Server
 
-- **Old**: NoraMCPClient
+- **Old**: CareSyncMCPClient
 - **New**: CareSyncMCPClient
 
 - **Old**: nora-mcp-client.ts

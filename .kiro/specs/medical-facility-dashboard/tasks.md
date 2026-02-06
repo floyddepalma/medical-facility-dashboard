@@ -2,7 +2,7 @@
 
 ## Overview
 
-This implementation plan breaks down the Medical Facility Dashboard into incremental coding steps. The dashboard is a real-time web application built with React/TypeScript frontend and Node.js/Express backend, integrating with the Nora RX MCP Server for scheduling policy management and the Open CLAW Agent for task coordination.
+This implementation plan breaks down the Medical Facility Dashboard into incremental coding steps. The dashboard is a real-time web application built with React/TypeScript frontend and Node.js/Express backend, integrating with the CareSync MCP Server for scheduling policy management and the Open CLAW Agent for task coordination.
 
 The implementation follows a bottom-up approach: data models → backend API → integration layer → frontend components → real-time features → testing.
 
@@ -52,9 +52,9 @@ The implementation follows a bottom-up approach: data models → backend API →
     - **Property 22: Authentication Requirement**
     - **Validates: Requirements 11.1**
 
-- [ ] 4. Implement Nora RX MCP client integration
+- [ ] 4. Implement CareSync MCP client integration
   - [ ] 4.1 Create MCP client wrapper
-    - Implement NoraMCPClient interface with all policy operations
+    - Implement CareSyncMCPClient interface with all policy operations
     - Add connection management and error handling
     - Implement retry logic with exponential backoff
     - Add request/response logging

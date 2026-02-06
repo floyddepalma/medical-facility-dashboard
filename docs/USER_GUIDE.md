@@ -398,7 +398,7 @@ The Medical Facility Dashboard is a real-time operational management system desi
 
 **Medical Assistant (MA):** Staff member managing facility operations and doctor schedules
 
-**Nora RX MCP:** Policy engine managing scheduling rules
+**CareSync MCP:** Policy engine managing scheduling rules
 
 **Policy:** Rule governing doctor availability and scheduling
 
