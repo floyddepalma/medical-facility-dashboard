@@ -10,9 +10,10 @@ export type DetailCategory =
 interface Props {
   category: DetailCategory | null;
   onClose: () => void;
+  isOpen: boolean;
 }
 
-export default function StatusDetailModal({ category, onClose }: Props) {
+export default function StatusDetailModal({ category, onClose, isOpen }: Props) {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,6 +66,8 @@ export default function StatusDetailModal({ category, onClose }: Props) {
   };
 
   const renderContent = () => {
+    if (!category) return null;
+    
     if (loading) {
       return (
         <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -160,44 +163,44 @@ export default function StatusDetailModal({ category, onClose }: Props) {
     return null;
   };
 
-  const itemCount = category.section === 'rooms' ? rooms.length
-    : category.section === 'equipment' ? equipment.length : 0;
+  const itemCount = category?.section === 'rooms' ? rooms.length
+    : category?.section === 'equipment' ? equipment.length : 0;
 
   return (
-    <>
-      <div onClick={onClose} style={{
-        position: 'fixed', inset: 0, zIndex: 1500,
-        backgroundColor: 'rgba(0,0,0,0.35)', transition: 'opacity 0.2s ease',
-      }} />
-      <div style={{
-        position: 'fixed', top: 0, right: 0, bottom: 0, width: '420px', zIndex: 1501,
+    <div
+      onClick={(e) => e.stopPropagation()}
+      style={{
+        position: 'fixed', top: 0, right: 0, bottom: 0, width: '420px',
         backgroundColor: 'var(--bg-surface)', boxShadow: 'var(--shadow-lg)',
         display: 'flex', flexDirection: 'column', overflowY: 'auto',
+        transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
+        transition: 'transform 0.3s ease',
+        borderLeft: '1px solid var(--border-default)',
+      }}
+    >
+      {/* Header - 56px to match nav height */}
+      <div style={{
+        height: '56px', padding: '0 24px', borderBottom: '1px solid var(--border-default)',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        position: 'sticky', top: 0, backgroundColor: 'var(--bg-surface)', zIndex: 1,
       }}>
-        {/* Header */}
-        <div style={{
-          padding: '20px 24px', borderBottom: '1px solid var(--border-default)',
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          position: 'sticky', top: 0, backgroundColor: 'var(--bg-surface)', zIndex: 1,
-        }}>
-          <div>
-            <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-heading)', margin: 0 }}>
-              {category.label}
-            </h3>
-            {!loading && itemCount > 0 && (
-              <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginTop: '2px' }}>
-                {itemCount} item{itemCount !== 1 ? 's' : ''}
-              </div>
-            )}
-          </div>
-          <button onClick={onClose} className="secondary"
-            aria-label="Close panel"
-            style={{ padding: '6px 12px', minHeight: '32px', fontSize: '13px' }}>
-            ✕
-          </button>
+        <div>
+          <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-heading)', margin: 0 }}>
+            {category?.label || ''}
+          </h3>
+          {!loading && itemCount > 0 && (
+            <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginTop: '2px' }}>
+              {itemCount} item{itemCount !== 1 ? 's' : ''}
+            </div>
+          )}
         </div>
-        {renderContent()}
+        <button onClick={onClose} className="secondary"
+          aria-label="Close panel"
+          style={{ padding: '6px 12px', minHeight: '32px', fontSize: '13px' }}>
+          ✕
+        </button>
       </div>
-    </>
+      {category && renderContent()}
+    </div>
   );
 }

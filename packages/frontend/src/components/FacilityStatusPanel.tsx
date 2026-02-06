@@ -15,7 +15,7 @@ function ClickableStatusItem({ value, label, color, onClick }: {
       role="button"
       tabIndex={0}
       aria-label={`${value} ${label} — click for details`}
-      onClick={onClick}
+      onClick={(e) => { e.stopPropagation(); onClick(); }}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
       style={{ cursor: 'pointer' }}
     >
@@ -66,7 +66,7 @@ export default function FacilityStatusPanel({ status, onDrillDown }: Props) {
               <div key={room.label}
                 role="button" tabIndex={0}
                 aria-label={`${room.label} rooms — ${room.data.available} available of ${room.data.total} — click for details`}
-                onClick={() => onDrillDown({ section: 'rooms', filter: room.type, label: `${room.label} Rooms` })}
+                onClick={(e) => { e.stopPropagation(); onDrillDown({ section: 'rooms', filter: room.type, label: `${room.label} Rooms` }); }}
                 onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onDrillDown({ section: 'rooms', filter: room.type, label: `${room.label} Rooms` }); } }}
                 style={{
                   padding: '12px 14px', borderRadius: '10px', cursor: 'pointer',

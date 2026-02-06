@@ -84,32 +84,50 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
   }
 
   return (
-    <div className="container">
-      <div style={{ marginBottom: '28px' }}>
-        <h2 style={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em' }}>
-          Dashboard
-        </h2>
-        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-          Real-time facility overview and operations
-        </p>
+    <div style={{ display: 'flex', minHeight: 'calc(100vh - 56px)' }}>
+      {/* Main content area - shrinks when panel is open */}
+      <div
+        onClick={() => detailCategory && setDetailCategory(null)}
+        style={{
+          flex: 1,
+          transition: 'margin-right 0.3s ease',
+          marginRight: detailCategory ? '420px' : '0',
+        }}
+      >
+        <div className="container">
+          <div style={{ marginBottom: '28px' }}>
+            <h2 style={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em' }}>
+              Dashboard
+            </h2>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+              Real-time facility overview and operations
+            </p>
+          </div>
+
+          {facilityStatus && (
+            <FacilityStatusPanel
+              status={facilityStatus}
+              onDrillDown={(cat) => setDetailCategory(cat)}
+            />
+          )}
+
+          <div className="grid grid-2">
+            <ActionItemsList actions={actions} onUpdate={handleActionUpdate} />
+            <TasksList tasks={tasks} onUpdate={handleTaskUpdate} />
+          </div>
+
+          {metrics && <MetricsPanel metrics={metrics} />}
+        </div>
       </div>
 
-      {facilityStatus && (
-        <FacilityStatusPanel
-          status={facilityStatus}
-          onDrillDown={(cat) => setDetailCategory(cat)}
-        />
-      )}
-
-      <div className="grid grid-2">
-        <ActionItemsList actions={actions} onUpdate={handleActionUpdate} />
-        <TasksList tasks={tasks} onUpdate={handleTaskUpdate} />
-      </div>
-
-      {metrics && <MetricsPanel metrics={metrics} />}
+      {/* Side panel - slides in from right */}
+      <StatusDetailModal
+        category={detailCategory}
+        onClose={() => setDetailCategory(null)}
+        isOpen={!!detailCategory}
+      />
 
       <Toast messages={messages} onDismiss={dismissToast} />
-      <StatusDetailModal category={detailCategory} onClose={() => setDetailCategory(null)} />
     </div>
   );
 }
