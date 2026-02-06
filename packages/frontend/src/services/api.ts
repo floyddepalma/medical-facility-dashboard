@@ -1,4 +1,4 @@
-import { User, FacilityStatus, Room, Equipment, ActionItem, Task, DailyMetrics } from '../types';
+import { User, FacilityStatus, Room, Equipment, ActionItem, Task, DailyMetrics, Doctor } from '../types';
 
 const API_BASE = '/api';
 
@@ -115,6 +115,11 @@ class ApiClient {
   async getDailyMetrics(date?: string): Promise<DailyMetrics> {
     const query = date ? `?date=${date}` : '';
     return this.request(`/metrics/daily${query}`);
+  }
+
+  // Doctors
+  async getDoctors(): Promise<{ doctors: Doctor[] }> {
+    return this.request('/doctors');
   }
 }
 

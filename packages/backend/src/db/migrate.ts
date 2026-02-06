@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { pool } from './connection';
+import { pool } from './connection.js';
 
 async function migrate() {
   try {

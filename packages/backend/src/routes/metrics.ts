@@ -22,17 +22,21 @@ router.get(
     const redis = await getRedisClient();
     const cacheKey = `metrics:daily:${targetDate}`;
 
-    // Try cache first
-    const cached = await redis.get(cacheKey);
-    if (cached) {
-      return res.json(JSON.parse(cached));
+    // Try cache first (if Redis available)
+    if (redis) {
+      const cached = await redis.get(cacheKey);
+      if (cached) {
+        return res.json(JSON.parse(cached));
+      }
     }
 
     // Calculate metrics
     const metrics = await calculateDailyMetrics(targetDate);
 
-    // Cache the result
-    await redis.setEx(cacheKey, CACHE_TTL, JSON.stringify(metrics));
+    // Cache the result (if Redis available)
+    if (redis) {
+      await redis.setEx(cacheKey, CACHE_TTL, JSON.stringify(metrics));
+    }
 
     res.json(metrics);
   })

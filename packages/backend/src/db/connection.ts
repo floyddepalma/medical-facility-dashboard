@@ -17,20 +17,33 @@ pool.on('error', (err) => {
   console.error('Unexpected database error:', err);
 });
 
-// Redis client
+// Redis client (optional)
 let redisClient: RedisClientType | null = null;
+let redisAvailable = true;
 
-export async function getRedisClient(): Promise<RedisClientType> {
+export async function getRedisClient(): Promise<RedisClientType | null> {
+  if (!redisAvailable) {
+    return null;
+  }
+
   if (!redisClient) {
-    redisClient = createClient({
-      url: process.env.REDIS_URL || 'redis://localhost:6379',
-    });
+    try {
+      redisClient = createClient({
+        url: process.env.REDIS_URL || 'redis://localhost:6379',
+      });
 
-    redisClient.on('error', (err) => {
-      console.error('Redis error:', err);
-    });
+      redisClient.on('error', (err) => {
+        console.error('Redis error:', err);
+        redisAvailable = false;
+      });
 
-    await redisClient.connect();
+      await redisClient.connect();
+      console.log('✓ Redis connected');
+    } catch (err) {
+      console.warn('⚠ Redis not available, running without cache');
+      redisAvailable = false;
+      redisClient = null;
+    }
   }
 
   return redisClient;

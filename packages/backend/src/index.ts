@@ -1,8 +1,13 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+
+// Load environment variables first
+dotenv.config();
+
 import { pool, closeConnections } from './db/connection';
 import { auditLog } from './middleware/audit-log';
+import { startPeriodicSync } from './services/google-calendar-sync';
 
 // Import routes
 import authRoutes from './routes/auth';
@@ -11,6 +16,7 @@ import actionsRoutes from './routes/actions';
 import tasksRoutes from './routes/tasks';
 import metricsRoutes from './routes/metrics';
 import doctorsRoutes from './routes/doctors';
+import { createCalendarRouter } from './routes/calendar';
 
 // Load environment variables
 dotenv.config();
@@ -41,6 +47,7 @@ app.use('/api/actions', actionsRoutes);
 app.use('/api/tasks', tasksRoutes);
 app.use('/api/metrics', metricsRoutes);
 app.use('/api/doctors', doctorsRoutes);
+app.use('/api/calendar', createCalendarRouter(pool));
 
 // 404 handler
 app.use((req, res) => {
@@ -74,6 +81,13 @@ async function start() {
     await pool.query('SELECT NOW()');
     console.log('✓ Database connected');
 
+    // Start Google Calendar sync (if configured)
+    const syncInterval = startPeriodicSync(pool, 5);
+    if (syncInterval) {
+      // Store sync interval for cleanup
+      (global as any).syncInterval = syncInterval;
+    }
+
     app.listen(PORT, () => {
       console.log(`✓ Server running on port ${PORT}`);
       console.log(`✓ Environment: ${process.env.NODE_ENV || 'development'}`);
@@ -87,12 +101,18 @@ async function start() {
 // Graceful shutdown
 process.on('SIGTERM', async () => {
   console.log('SIGTERM received, shutting down gracefully...');
+  if ((global as any).syncInterval) {
+    clearInterval((global as any).syncInterval);
+  }
   await closeConnections();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
   console.log('SIGINT received, shutting down gracefully...');
+  if ((global as any).syncInterval) {
+    clearInterval((global as any).syncInterval);
+  }
   await closeConnections();
   process.exit(0);
 });

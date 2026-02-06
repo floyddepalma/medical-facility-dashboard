@@ -1,5 +1,14 @@
 -- Medical Facility Dashboard Database Schema
 
+-- Doctors table (create first since users references it)
+CREATE TABLE IF NOT EXISTS doctors (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(255) NOT NULL,
+  specialization VARCHAR(255),
+  active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -20,15 +29,6 @@ CREATE TABLE IF NOT EXISTS user_managed_doctors (
   PRIMARY KEY (user_id, doctor_id),
   CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   CONSTRAINT fk_managed_doctor FOREIGN KEY (doctor_id) REFERENCES doctors(id) ON DELETE CASCADE
-);
-
--- Doctors table
-CREATE TABLE IF NOT EXISTS doctors (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name VARCHAR(255) NOT NULL,
-  specialization VARCHAR(255),
-  active BOOLEAN DEFAULT true,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Rooms table
@@ -129,6 +129,36 @@ CREATE TABLE IF NOT EXISTS patient_flow (
   CONSTRAINT fk_patient_room FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE SET NULL
 );
 
+-- Appointments table (for calendar view)
+CREATE TABLE IF NOT EXISTS appointments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  doctor_id UUID NOT NULL,
+  patient_name VARCHAR(255) NOT NULL,
+  patient_contact VARCHAR(255),
+  appointment_type VARCHAR(255) NOT NULL,
+  start_time TIMESTAMP WITH TIME ZONE NOT NULL,
+  end_time TIMESTAMP WITH TIME ZONE NOT NULL,
+  duration INTEGER NOT NULL,
+  status VARCHAR(50) NOT NULL CHECK (status IN ('scheduled', 'completed', 'cancelled', 'no_show')),
+  notes TEXT,
+  policy_id VARCHAR(255),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_appointment_doctor FOREIGN KEY (doctor_id) REFERENCES doctors(id) ON DELETE CASCADE
+);
+
+-- Time blocks table (blocked time periods)
+CREATE TABLE IF NOT EXISTS time_blocks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  doctor_id UUID NOT NULL,
+  start_time TIMESTAMP WITH TIME ZONE NOT NULL,
+  end_time TIMESTAMP WITH TIME ZONE NOT NULL,
+  reason VARCHAR(50) NOT NULL CHECK (reason IN ('lunch', 'meeting', 'personal', 'other')),
+  description TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_timeblock_doctor FOREIGN KEY (doctor_id) REFERENCES doctors(id) ON DELETE CASCADE
+);
+
 -- Indexes for performance
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_role ON users(role);
@@ -149,6 +179,13 @@ CREATE INDEX idx_audit_logs_timestamp ON audit_logs(timestamp);
 CREATE INDEX idx_patient_flow_status ON patient_flow(status);
 CREATE INDEX idx_patient_flow_doctor ON patient_flow(doctor_id);
 CREATE INDEX idx_patient_flow_arrival ON patient_flow(arrival_time);
+CREATE INDEX idx_appointments_doctor ON appointments(doctor_id);
+CREATE INDEX idx_appointments_start_time ON appointments(start_time);
+CREATE INDEX idx_appointments_status ON appointments(status);
+CREATE INDEX idx_appointments_doctor_date ON appointments(doctor_id, start_time);
+CREATE INDEX idx_time_blocks_doctor ON time_blocks(doctor_id);
+CREATE INDEX idx_time_blocks_start_time ON time_blocks(start_time);
+CREATE INDEX idx_time_blocks_doctor_date ON time_blocks(doctor_id, start_time);
 
 -- View for daily metrics calculation
 CREATE OR REPLACE VIEW daily_metrics_view AS

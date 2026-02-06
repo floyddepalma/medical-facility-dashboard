@@ -10,6 +10,13 @@ export interface User {
   managedDoctorIds?: string[];
 }
 
+export interface Doctor {
+  id: string;
+  name: string;
+  specialization?: string;
+  active: boolean;
+}
+
 export interface Room {
   id: string;
   name: string;

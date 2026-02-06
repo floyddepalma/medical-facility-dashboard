@@ -63,31 +63,29 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
   }
 
   if (loading) {
-    return <div className="loading">Loading dashboard...</div>;
+    return (
+      <div className="container" style={{ padding: '24px' }}>
+        <div style={{ textAlign: 'center', padding: '48px', color: '#6b7280' }}>
+          Loading dashboard...
+        </div>
+      </div>
+    );
   }
 
   return (
-    <>
-      <div className="header">
-        <div className="header-content">
-          <h1>Medical Facility Dashboard</h1>
-          <div className="user-info">
-            <span>{user.name} ({user.role})</span>
-            <button onClick={onLogout} className="secondary">Logout</button>
-          </div>
-        </div>
+    <div className="container" style={{ padding: '24px' }}>
+      <h2 style={{ marginBottom: '24px', fontSize: '24px', fontWeight: 600 }}>
+        Medical Facility Dashboard
+      </h2>
+
+      {facilityStatus && <FacilityStatusPanel status={facilityStatus} />}
+
+      <div className="grid grid-2">
+        <ActionItemsList actions={actions} onUpdate={handleActionUpdate} />
+        <TasksList tasks={tasks} onUpdate={handleTaskUpdate} />
       </div>
 
-      <div className="container">
-        {facilityStatus && <FacilityStatusPanel status={facilityStatus} />}
-
-        <div className="grid grid-2">
-          <ActionItemsList actions={actions} onUpdate={handleActionUpdate} />
-          <TasksList tasks={tasks} onUpdate={handleTaskUpdate} />
-        </div>
-
-        {metrics && <MetricsPanel metrics={metrics} />}
-      </div>
-    </>
+      {metrics && <MetricsPanel metrics={metrics} />}
+    </div>
   );
 }

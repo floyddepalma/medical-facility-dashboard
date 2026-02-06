@@ -1,9 +1,35 @@
-import bcrypt from 'bcrypt';
 import { pool } from './connection.js';
 
-async function seed() {
+async function reset() {
   try {
-    console.log('Seeding database...');
+    console.log('Resetting database to default state...');
+
+    // Drop all tables in reverse order of dependencies
+    await pool.query(`
+      DROP TABLE IF EXISTS audit_logs CASCADE;
+      DROP TABLE IF EXISTS patient_flow CASCADE;
+      DROP TABLE IF EXISTS tasks CASCADE;
+      DROP TABLE IF EXISTS action_items CASCADE;
+      DROP TABLE IF EXISTS equipment CASCADE;
+      DROP TABLE IF EXISTS rooms CASCADE;
+      DROP TABLE IF EXISTS user_managed_doctors CASCADE;
+      DROP TABLE IF EXISTS users CASCADE;
+      DROP TABLE IF EXISTS doctors CASCADE;
+      DROP VIEW IF EXISTS daily_metrics_view CASCADE;
+    `);
+
+    console.log('✓ Dropped all tables');
+
+    // Re-run migrations
+    const { readFileSync } = await import('fs');
+    const { join } = await import('path');
+    const schemaSQL = readFileSync(join(__dirname, 'schema.sql'), 'utf-8');
+    
+    await pool.query(schemaSQL);
+    console.log('✓ Recreated all tables');
+
+    // Re-run seed
+    const bcrypt = await import('bcrypt');
 
     // Create doctors
     const doctorResult = await pool.query(
@@ -112,87 +138,7 @@ async function seed() {
 
     console.log('✓ Created sample action items');
 
-    // Create sample appointments
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    // Helper to create appointment time
-    const createAppointmentTime = (daysOffset: number, hour: number, minute: number = 0) => {
-      const date = new Date(today);
-      date.setDate(date.getDate() + daysOffset);
-      date.setHours(hour, minute, 0, 0);
-      return date;
-    };
-
-    // Appointments for Dr. Sarah Johnson (today and tomorrow)
-    await pool.query(
-      `INSERT INTO appointments (doctor_id, patient_name, patient_contact, appointment_type, start_time, end_time, duration, status, notes)
-       VALUES 
-         ($1, 'John Smith', '555-0101', 'Annual Checkup', $2, $3, 30, 'scheduled', 'First visit'),
-         ($1, 'Mary Williams', '555-0102', 'Follow-up', $4, $5, 15, 'scheduled', NULL),
-         ($1, 'Robert Brown', '555-0103', 'Consultation', $6, $7, 45, 'scheduled', 'New patient'),
-         ($1, 'Jennifer Davis', '555-0104', 'Annual Checkup', $8, $9, 30, 'scheduled', NULL),
-         ($1, 'Michael Wilson', '555-0105', 'Follow-up', $10, $11, 15, 'completed', 'Completed yesterday')`,
-      [
-        doctor1.id,
-        createAppointmentTime(0, 9, 0), createAppointmentTime(0, 9, 30),
-        createAppointmentTime(0, 10, 0), createAppointmentTime(0, 10, 15),
-        createAppointmentTime(0, 14, 0), createAppointmentTime(0, 14, 45),
-        createAppointmentTime(1, 9, 0), createAppointmentTime(1, 9, 30),
-        createAppointmentTime(-1, 10, 0), createAppointmentTime(-1, 10, 15),
-      ]
-    );
-
-    // Appointments for Dr. Michael Chen
-    await pool.query(
-      `INSERT INTO appointments (doctor_id, patient_name, patient_contact, appointment_type, start_time, end_time, duration, status)
-       VALUES 
-         ($1, 'Patricia Martinez', '555-0201', 'Cardiology Consultation', $2, $3, 60, 'scheduled'),
-         ($1, 'James Anderson', '555-0202', 'Follow-up', $4, $5, 30, 'scheduled'),
-         ($1, 'Linda Taylor', '555-0203', 'EKG Test', $6, $7, 45, 'scheduled')`,
-      [
-        doctor2.id,
-        createAppointmentTime(0, 10, 0), createAppointmentTime(0, 11, 0),
-        createAppointmentTime(0, 15, 0), createAppointmentTime(0, 15, 30),
-        createAppointmentTime(1, 11, 0), createAppointmentTime(1, 11, 45),
-      ]
-    );
-
-    // Appointments for Dr. Emily Rodriguez
-    await pool.query(
-      `INSERT INTO appointments (doctor_id, patient_name, patient_contact, appointment_type, start_time, end_time, duration, status)
-       VALUES 
-         ($1, 'Emma Johnson', '555-0301', 'Well-Child Visit', $2, $3, 30, 'scheduled'),
-         ($1, 'Oliver Garcia', '555-0302', 'Vaccination', $4, $5, 15, 'scheduled'),
-         ($1, 'Sophia Lee', '555-0303', 'Sick Visit', $6, $7, 20, 'scheduled')`,
-      [
-        doctor3.id,
-        createAppointmentTime(0, 9, 30), createAppointmentTime(0, 10, 0),
-        createAppointmentTime(0, 13, 0), createAppointmentTime(0, 13, 15),
-        createAppointmentTime(1, 14, 0), createAppointmentTime(1, 14, 20),
-      ]
-    );
-
-    console.log('✓ Created sample appointments');
-
-    // Create sample time blocks
-    await pool.query(
-      `INSERT INTO time_blocks (doctor_id, start_time, end_time, reason, description)
-       VALUES 
-         ($1, $2, $3, 'lunch', 'Lunch break'),
-         ($4, $5, $6, 'meeting', 'Staff meeting'),
-         ($7, $8, $9, 'personal', 'Personal appointment')`,
-      [
-        doctor1.id, createAppointmentTime(0, 12, 0), createAppointmentTime(0, 13, 0),
-        doctor2.id, createAppointmentTime(0, 13, 0), createAppointmentTime(0, 14, 0),
-        doctor3.id, createAppointmentTime(1, 12, 0), createAppointmentTime(1, 12, 30),
-      ]
-    );
-
-    console.log('✓ Created sample time blocks');
-
-    console.log('\n✓ Database seeded successfully!');
+    console.log('\n✓ Database reset complete!');
     console.log('\nTest credentials:');
     console.log('  Admin: admin@clinic.com / password123');
     console.log('  Doctor: sarah.johnson@clinic.com / password123');
@@ -200,9 +146,9 @@ async function seed() {
 
     process.exit(0);
   } catch (err) {
-    console.error('Seeding failed:', err);
+    console.error('Reset failed:', err);
     process.exit(1);
   }
 }
 
-seed();
+reset();

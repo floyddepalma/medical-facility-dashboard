@@ -17,17 +17,21 @@ router.get(
   asyncHandler(async (req: AuthRequest, res) => {
     const redis = await getRedisClient();
     
-    // Try cache first
-    const cached = await redis.get('facility:status');
-    if (cached) {
-      return res.json(JSON.parse(cached));
+    // Try cache first (if Redis available)
+    if (redis) {
+      const cached = await redis.get('facility:status');
+      if (cached) {
+        return res.json(JSON.parse(cached));
+      }
     }
 
     // Calculate facility status
     const status = await calculateFacilityStatus();
 
-    // Cache the result
-    await redis.setEx('facility:status', CACHE_TTL, JSON.stringify(status));
+    // Cache the result (if Redis available)
+    if (redis) {
+      await redis.setEx('facility:status', CACHE_TTL, JSON.stringify(status));
+    }
 
     res.json(status);
   })
@@ -186,9 +190,11 @@ router.put(
       );
     }
 
-    // Invalidate cache
+    // Invalidate cache (if Redis available)
     const redis = await getRedisClient();
-    await redis.del('facility:status');
+    if (redis) {
+      await redis.del('facility:status');
+    }
 
     res.json({ equipment });
   })
