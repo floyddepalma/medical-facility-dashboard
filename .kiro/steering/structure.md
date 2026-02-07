@@ -2,7 +2,7 @@
 
 ## Repository Organization
 
-Monorepo structure with frontend and backend packages.
+Monorepo structure with three main packages.
 
 ```
 /
@@ -17,47 +17,16 @@ Monorepo structure with frontend and backend packages.
 │       ├── tech.md
 │       └── structure.md
 ├── packages/
-│   ├── frontend/          # React/TypeScript dashboard UI
-│   │   ├── src/
-│   │   │   ├── components/
-│   │   │   │   ├── layout/
-│   │   │   │   ├── operational-status/
-│   │   │   │   ├── action-items/
-│   │   │   │   ├── tasks/
-│   │   │   │   ├── scheduling/
-│   │   │   │   ├── metrics/
-│   │   │   │   └── multi-doctor/
-│   │   │   ├── services/
-│   │   │   │   ├── api.ts
-│   │   │   │   └── websocket.ts
-│   │   │   ├── types/
-│   │   │   └── utils/
-│   │   └── package.json
-│   └── backend/           # Node.js/Express API server
-│       ├── src/
-│       │   ├── routes/
-│       │   │   ├── auth.ts
-│       │   │   ├── facility.ts
-│       │   │   ├── actions.ts
-│       │   │   ├── tasks.ts
-│       │   │   ├── policies.ts
-│       │   │   ├── metrics.ts
-│       │   │   └── doctors.ts
-│       │   ├── services/
-│       │   │   ├── caresync-mcp-client.ts
-│       │   │   ├── claw-agent-client.ts
-│       │   │   └── websocket-server.ts
-│       │   ├── models/
-│       │   ├── middleware/
-│       │   │   ├── auth.ts
-│       │   │   ├── validation.ts
-│       │   │   └── audit-log.ts
-│       │   ├── db/
-│       │   │   ├── schema.sql
-│       │   │   └── migrations/
-│       │   └── types/
-│       └── package.json
-└── package.json           # Root package.json for monorepo
+│   ├── frontend/                 # React/TypeScript dashboard UI
+│   ├── backend/                  # Node.js/Express API server
+│   └── cara-autonomous-agent/    # Cara AI operations agent
+├── docs/                         # Documentation
+│   ├── CLAW_AGENT_SETUP.md
+│   ├── MONDAY_DEMO_PLAN.md
+│   └── ...
+├── START_ALL.md                  # Quick start guide
+├── CARA_AGENT_COMPLETE.md        # Cara implementation details
+└── package.json
 ```
 
 ## Key Directories

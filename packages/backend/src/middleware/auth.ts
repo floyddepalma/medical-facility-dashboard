@@ -42,6 +42,33 @@ export function authenticateToken(
     return;
   }
 
+  // Check if it's the CLAW API key (for Cara agent)
+  const clawApiKey = process.env.CLAW_API_KEY;
+  console.log('[Auth] Checking API key:', { 
+    hasClawKey: !!clawApiKey, 
+    tokenLength: token?.length,
+    clawKeyLength: clawApiKey?.length,
+    matches: token === clawApiKey 
+  });
+  
+  if (clawApiKey && token === clawApiKey) {
+    console.log('[Auth] ✓ Cara API key validated - granting admin access');
+    // Create a service account user for Cara
+    req.user = {
+      id: 'cara-agent',
+      email: 'cara@caresync.local',
+      name: 'Cara (AI Agent)',
+      role: 'admin', // Give Cara admin access to create tasks/actions
+      doctorId: null,
+      managedDoctorIds: [],
+      createdAt: new Date(),
+      lastLogin: new Date(),
+    };
+    next();
+    return;
+  }
+
+  // Otherwise, verify JWT token
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as any;
     req.user = {

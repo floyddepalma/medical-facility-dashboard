@@ -17,12 +17,14 @@ pool.on('error', (err) => {
   console.error('Unexpected database error:', err);
 });
 
-// Redis client (optional)
+// Redis client (optional - disabled by default for simplicity)
 let redisClient: RedisClientType | null = null;
-let redisAvailable = true;
+let redisAvailable = false;
+let redisEnabled = process.env.REDIS_ENABLED === 'true';
 
 export async function getRedisClient(): Promise<RedisClientType | null> {
-  if (!redisAvailable) {
+  // Skip Redis entirely if not enabled
+  if (!redisEnabled || !redisAvailable) {
     return null;
   }
 
@@ -39,6 +41,7 @@ export async function getRedisClient(): Promise<RedisClientType | null> {
 
       await redisClient.connect();
       console.log('✓ Redis connected');
+      redisAvailable = true;
     } catch (err) {
       console.warn('⚠ Redis not available, running without cache');
       redisAvailable = false;
@@ -47,6 +50,13 @@ export async function getRedisClient(): Promise<RedisClientType | null> {
   }
 
   return redisClient;
+}
+
+// Initialize Redis if enabled
+export async function initRedis(): Promise<void> {
+  if (redisEnabled) {
+    await getRedisClient();
+  }
 }
 
 export async function closeConnections(): Promise<void> {

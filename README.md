@@ -17,13 +17,14 @@ This dashboard enables medical staff to focus on patient care by surfacing only 
 
 ## Architecture
 
-Monorepo with separate frontend and backend packages:
+Monorepo with three main packages:
 
-- **Frontend**: React with TypeScript, WebSocket client for real-time updates
-- **Backend**: Node.js/Express with TypeScript, WebSocket server (ws library)
-- **Database**: PostgreSQL for persistent data, Redis for caching and real-time state
-- **Integration**: CareSync MCP Server for scheduling policies, Open CLAW Agent for task automation
-- **Authentication**: JWT-based with role-based access control
+- **Frontend**: React with TypeScript (port 5173)
+- **Backend**: Node.js/Express API server (port 3000)
+- **Cara Autonomous Agent**: AI-powered operations agent (port 8000)
+- **Database**: PostgreSQL for persistent data
+- **Integration**: CareSync MCP Server for scheduling policies
+- **Authentication**: JWT-based with role-based access control + API key for Cara
 
 ## Project Structure
 
@@ -31,18 +32,18 @@ Monorepo with separate frontend and backend packages:
 /
 ├── .kiro/
 │   ├── specs/                    # Feature specifications
-│   │   └── medical-facility-dashboard/
-│   │       ├── requirements.md   # User stories and acceptance criteria
-│   │       ├── design.md         # Architecture and data models
-│   │       └── tasks.md          # Implementation plan
 │   └── steering/                 # Project guidance
-│       ├── product.md
-│       ├── tech.md
-│       └── structure.md
 ├── packages/
-│   ├── frontend/                 # React dashboard UI (to be implemented)
-│   └── backend/                  # Node.js API server (to be implemented)
-└── package.json                  # Root package.json (to be created)
+│   ├── frontend/                 # React dashboard UI (port 5173)
+│   ├── backend/                  # Node.js API server (port 3000)
+│   └── cara-autonomous-agent/    # Cara AI agent (port 8000)
+├── docs/                         # Documentation
+│   ├── CLAW_AGENT_SETUP.md      # Cara setup guide
+│   ├── MONDAY_DEMO_PLAN.md      # Demo script
+│   └── ...
+├── START_ALL.md                  # Quick start guide
+├── CARA_AGENT_COMPLETE.md        # Cara implementation details
+└── package.json
 ```
 
 ## Getting Started
@@ -50,30 +51,32 @@ Monorepo with separate frontend and backend packages:
 ### Prerequisites
 
 - Node.js 18+ and npm
-- PostgreSQL 14+
-- Redis 6+
+- PostgreSQL 14+ (or Neon cloud database)
 
 ### Quick Start
 
+See [START_ALL.md](./START_ALL.md) for complete startup instructions.
+
+**Quick version:**
+
 ```bash
-# 1. Install dependencies
-npm install
-
-# 2. Set up backend environment
-cp packages/backend/.env.example packages/backend/.env
-# Edit packages/backend/.env with your database credentials
-
-# 3. Set up database
+# Terminal 1: Backend
 cd packages/backend
-npm run db:migrate
-npm run db:seed
-cd ../..
+npm run dev
 
-# 4. Start both servers
+# Terminal 2: Frontend  
+cd packages/frontend
+npm run dev
+
+# Terminal 3: Cara Agent
+cd packages/cara-autonomous-agent
 npm run dev
 ```
 
-The backend will run on `http://localhost:3000` and frontend on `http://localhost:5173`.
+The system will be available at:
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost:3000`
+- Cara Agent: `http://localhost:8000`
 
 ### Test Credentials
 
@@ -123,12 +126,13 @@ Dual testing approach for comprehensive coverage:
 
 ## Documentation
 
-- [Requirements](/.kiro/specs/medical-facility-dashboard/requirements.md) - 14 requirements with acceptance criteria
-- [Design](/.kiro/specs/medical-facility-dashboard/design.md) - Architecture, data models, and correctness properties
-- [Tasks](/.kiro/specs/medical-facility-dashboard/tasks.md) - Implementation plan with 26 tasks and 70+ sub-tasks
-- [Product Overview](/.kiro/steering/product.md) - Core purpose and design principles
-- [Technology Stack](/.kiro/steering/tech.md) - Tech decisions and common commands
-- [Project Structure](/.kiro/steering/structure.md) - Organization and conventions
+- [START_ALL.md](./START_ALL.md) - Complete startup guide for all services
+- [CARA_AGENT_COMPLETE.md](./CARA_AGENT_COMPLETE.md) - Cara implementation details
+- [docs/CLAW_AGENT_SETUP.md](./docs/CLAW_AGENT_SETUP.md) - Cara configuration guide
+- [docs/MONDAY_DEMO_PLAN.md](./docs/MONDAY_DEMO_PLAN.md) - Demo script and talking points
+- [Requirements](/.kiro/specs/medical-facility-dashboard/requirements.md) - Feature requirements
+- [Design](/.kiro/specs/medical-facility-dashboard/design.md) - Architecture and data models
+- [Tasks](/.kiro/specs/medical-facility-dashboard/tasks.md) - Implementation plan
 
 ## API Endpoints
 

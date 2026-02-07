@@ -15,14 +15,15 @@ Monorepo with separate frontend and backend packages.
 - **Language**: TypeScript
 - **WebSocket**: ws library
 - **Database**: PostgreSQL for persistent data
-- **Cache**: Redis for real-time state and caching
+- **Cache**: Redis (optional, for production scaling)
 
 ### Integration Layer
 - **CareSync MCP Server**: Scheduling policy management via MCP client
-- **Open CLAW Agent**: AI task coordination via HTTP
+- **Cara Autonomous Agent**: AI task coordination via HTTP (custom-built)
 
 ### Authentication
 - JWT-based authentication with role-based access control
+- API key authentication for Cara Autonomous Agent
 
 ## Testing
 
@@ -81,8 +82,7 @@ npm run lint
 ## Performance Considerations
 
 - Database indexes on frequently queried fields (doctorId, status, date)
-- Redis caching with 10s TTL for facility status and policies
-- Redis pub/sub for multi-server WebSocket synchronization
+- Redis caching (optional, enable with REDIS_ENABLED=true for high-traffic deployments)
 - Pagination for task history and audit logs
 - Database views for complex aggregations
 

@@ -96,12 +96,12 @@ export class ClawAgentClient {
    */
   async sendFacilityStatus(status: FacilityStatusUpdate): Promise<void> {
     try {
-      const response = await this.client.post('/facility-status', status);
-      console.log(`[CLAW Client] Facility status sent. Actions planned: ${response.data.actionsPlanned || 0}`);
+      const response = await this.client.post('/webhook/facility-status', status);
+      console.log(`[CLAW Client] Facility status sent successfully`);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.code === 'ECONNREFUSED') {
-          console.warn('[CLAW Client] Agent offline - status update queued');
+          console.warn('⚠ CLAW agent offline - will retry automatically');
         } else {
           console.error('[CLAW Client] Failed to send facility status:', error.message);
         }
