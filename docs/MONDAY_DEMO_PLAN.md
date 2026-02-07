@@ -31,20 +31,20 @@
 
 ---
 
-## Phase 1: Demo Data Setup (HipNation-Specific)
+## Phase 1: Demo Data Setup
 
-### HipNation Doctor Data
-Based on hipnation.com, create realistic demo data:
+### Generic Demo Data (Client-Agnostic)
+**Note:** We use generic names in the actual database. During the demo pitch, you can reference HipNation's practice, but the data itself remains generic and reusable.
 
-**Doctors** (from HipNation website):
-- Dr. Sarah Chen - Family Medicine
-- Dr. Michael Rodriguez - Pediatrics  
-- Dr. Emily Thompson - Internal Medicine
-- Dr. James Wilson - Orthopedics
+**Doctors** (Generic names):
+- Dr. Mitchell - Family Medicine
+- Dr. Rodriguez - Pediatrics  
+- Dr. Thompson - Internal Medicine
+- Dr. Chen - Orthopedics
 
 **Medical Assistants:**
-- Jessica Martinez - Manages Dr. Chen & Dr. Rodriguez
-- David Kim - Manages Dr. Thompson & Dr. Wilson
+- Medical Assistant 1 - Manages Dr. Mitchell & Dr. Rodriguez
+- Medical Assistant 2 - Manages Dr. Thompson & Dr. Chen
 
 **Facility Layout** (Typical small practice):
 - **Examination Rooms**: 6 rooms
@@ -343,38 +343,40 @@ python monitor.py
 
 ## Phase 5: Demo Seed Data Script
 
-**File:** `packages/backend/src/db/hipnation-seed.ts`
+**File:** `packages/backend/src/db/demo-seed.ts` (already created)
+
+**Note:** The actual seed script uses generic names and email addresses (@demo.com). This keeps the demo data reusable for any client.
 
 ```typescript
 import { pool } from './connection';
 import bcrypt from 'bcrypt';
 
-export async function seedHipNationDemo() {
-  console.log('🏥 Seeding HipNation demo data...');
+export async function seedDemoData() {
+  console.log('🏥 Seeding demo data...');
 
   // Clear existing data
   await pool.query('TRUNCATE users, doctors, rooms, equipment, tasks, action_items, appointments CASCADE');
 
-  // Create doctors (from HipNation)
+  // Create doctors (generic names)
   const doctors = await pool.query(`
     INSERT INTO doctors (id, name, specialization, active)
     VALUES 
-      ('doc-chen-123', 'Dr. Sarah Chen', 'Family Medicine', true),
-      ('doc-rodriguez-456', 'Dr. Michael Rodriguez', 'Pediatrics', true),
-      ('doc-thompson-789', 'Dr. Emily Thompson', 'Internal Medicine', true),
-      ('doc-wilson-012', 'Dr. James Wilson', 'Orthopedics', true)
+      ('doc-mitchell-123', 'Dr. Mitchell', 'Family Medicine', true),
+      ('doc-rodriguez-456', 'Dr. Rodriguez', 'Pediatrics', true),
+      ('doc-thompson-789', 'Dr. Thompson', 'Internal Medicine', true),
+      ('doc-chen-012', 'Dr. Chen', 'Orthopedics', true)
     RETURNING *
   `);
 
-  // Create users
+  // Create users (generic emails)
   const passwordHash = await bcrypt.hash('demo123', 10);
   await pool.query(`
     INSERT INTO users (email, password_hash, name, role, doctor_id, managed_doctor_ids)
     VALUES 
-      ('admin@hipnation.com', $1, 'Admin User', 'admin', NULL, NULL),
-      ('jessica@hipnation.com', $1, 'Jessica Martinez', 'medical_assistant', NULL, ARRAY['doc-chen-123', 'doc-rodriguez-456']),
-      ('david@hipnation.com', $1, 'David Kim', 'medical_assistant', NULL, ARRAY['doc-thompson-789', 'doc-wilson-012']),
-      ('sarah.chen@hipnation.com', $1, 'Dr. Sarah Chen', 'doctor', 'doc-chen-123', NULL)
+      ('admin@demo.com', $1, 'Admin User', 'admin', NULL, NULL),
+      ('ma1@demo.com', $1, 'Medical Assistant 1', 'medical_assistant', NULL, ARRAY['doc-mitchell-123', 'doc-rodriguez-456']),
+      ('ma2@demo.com', $1, 'Medical Assistant 2', 'medical_assistant', NULL, ARRAY['doc-thompson-789', 'doc-chen-012']),
+      ('dr.mitchell@demo.com', $1, 'Dr. Mitchell', 'doctor', 'doc-mitchell-123', NULL)
   `, [passwordHash]);
 
   // Create rooms
@@ -423,18 +425,18 @@ export async function seedHipNationDemo() {
       ('patient_followup', 'Call patient for lab results', 'staff', 'pending', 'system', 'doc-thompson-789', NULL)
   `);
 
-  console.log('✅ HipNation demo data seeded successfully!');
+  console.log('✅ Demo data seeded successfully!');
   console.log('');
   console.log('Demo Logins:');
-  console.log('  Medical Assistant: jessica@hipnation.com / demo123');
-  console.log('  Doctor: sarah.chen@hipnation.com / demo123');
-  console.log('  Admin: admin@hipnation.com / demo123');
+  console.log('  Medical Assistant: ma1@demo.com / demo123');
+  console.log('  Doctor: dr.mitchell@demo.com / demo123');
+  console.log('  Admin: admin@demo.com / demo123');
 }
 ```
 
 **Run:**
 ```bash
-npx tsx packages/backend/src/db/hipnation-seed.ts
+npx tsx packages/backend/src/db/demo-seed.ts
 ```
 
 ---
@@ -450,15 +452,17 @@ What if you had a system that could monitor your facility in real-time, handle r
 ### Live Demo (15 minutes)
 
 #### 1. Dashboard Overview (3 min)
-- Login as Jessica (medical assistant)
+- Login as Medical Assistant (ma1@demo.com)
 - Show real-time facility status
 - Point out: "This is your facility right now - 9 rooms, 6 pieces of equipment, 12 patients in various stages"
+- **Demo Tip:** Reference HipNation's practice naturally: "Imagine this is your practice with Dr. Chen, Dr. Rodriguez, and your team..."
 
 #### 2. AI Assistant (3 min)
 - Ask: "What's the current wait time?"
 - Ask: "Which rooms need attention?"
-- Ask: "Show me Dr. Chen's schedule"
+- Ask: "Show me Dr. Mitchell's schedule"
 - **Key point:** "Natural language, instant answers"
+- **Demo Tip:** You can say "Dr. Chen" during the pitch - the system is flexible
 
 #### 3. Autonomous Task Management (3 min)
 - Show Open CLAW creating a task in real-time
@@ -467,10 +471,11 @@ What if you had a system that could monitor your facility in real-time, handle r
 - **Key point:** "AI handles routine, staff handles exceptions"
 
 #### 4. Policy Management (3 min)
-- Show Dr. Chen's scheduling policies
+- Show Dr. Mitchell's scheduling policies
 - Attempt to book conflicting appointment
 - System catches conflict via CareSync MCP
 - **Key point:** "Never double-book, policies enforced automatically"
+- **Demo Tip:** Reference HipNation's scheduling challenges naturally
 
 #### 5. OpenCV Demo (3 min) - **The Wow Factor**
 - Show live camera feed
@@ -494,7 +499,7 @@ What questions do you have?"
 
 ### Sunday (8 hours)
 - **Morning (4h):** Integrate dashboard with CLAW and MCP
-- **Afternoon (4h):** Seed HipNation data, test workflows
+- **Afternoon (4h):** Seed demo data, test workflows, practice pitch
 
 ### Monday Morning (2 hours before demo)
 - **9:00-10:00 AM:** Final testing, rehearse demo
