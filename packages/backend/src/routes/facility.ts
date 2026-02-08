@@ -213,7 +213,7 @@ router.get(
       ORDER BY r.name, hour
     `);
 
-    // Get AVERAGE hourly utilization across all historical days (for the background bars)
+    // Get AVERAGE hourly utilization across historical days only (excludes today)
     const avgHourlyStats = await pool.query(`
       SELECT hour, ROUND(AVG(total_minutes))::INTEGER as avg_minutes, ROUND(AVG(session_count))::INTEGER as avg_sessions
       FROM (
@@ -223,6 +223,7 @@ router.get(
                COUNT(*) as session_count
         FROM room_utilization
         WHERE ended_at IS NOT NULL
+          AND DATE(started_at) < CURRENT_DATE
         GROUP BY DATE(started_at), EXTRACT(HOUR FROM started_at)
       ) daily_hours
       GROUP BY hour

@@ -21,6 +21,7 @@ import doctorsRoutes from './routes/doctors';
 import chatRoutes from './routes/chat';
 import webhookRoutes from './routes/webhooks';
 import { createCalendarRouter } from './routes/calendar';
+import policiesRoutes from './routes/policies';
 
 // Import services
 import { clawAgent, facilityBroadcaster } from './services/claw-agent-client';
@@ -57,6 +58,7 @@ app.use('/api/doctors', doctorsRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/calendar', createCalendarRouter(pool));
+app.use('/api/policies', policiesRoutes);
 
 // 404 handler
 app.use((req, res) => {

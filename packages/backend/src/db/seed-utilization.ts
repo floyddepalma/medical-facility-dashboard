@@ -15,17 +15,17 @@ interface HourPattern {
 }
 
 const hourlyPatterns: HourPattern[] = [
-  { hour: 7,  probability: 0.3,  avgDuration: 20, variance: 10 },
-  { hour: 8,  probability: 0.7,  avgDuration: 25, variance: 10 },
-  { hour: 9,  probability: 0.9,  avgDuration: 30, variance: 15 },
-  { hour: 10, probability: 0.8,  avgDuration: 25, variance: 10 },
-  { hour: 11, probability: 0.7,  avgDuration: 20, variance: 10 },
-  { hour: 12, probability: 0.4,  avgDuration: 15, variance: 5  },  // Lunch
-  { hour: 13, probability: 0.8,  avgDuration: 25, variance: 10 },
-  { hour: 14, probability: 0.9,  avgDuration: 30, variance: 15 },
-  { hour: 15, probability: 0.85, avgDuration: 25, variance: 10 },
-  { hour: 16, probability: 0.6,  avgDuration: 20, variance: 10 },
-  { hour: 17, probability: 0.3,  avgDuration: 15, variance: 5  },
+  { hour: 7,  probability: 0.5,  avgDuration: 20, variance: 10 },
+  { hour: 8,  probability: 0.95, avgDuration: 25, variance: 10 },
+  { hour: 9,  probability: 1.0,  avgDuration: 30, variance: 15 },
+  { hour: 10, probability: 1.0,  avgDuration: 25, variance: 10 },
+  { hour: 11, probability: 0.95, avgDuration: 20, variance: 10 },
+  { hour: 12, probability: 0.6,  avgDuration: 15, variance: 5  },  // Lunch dip
+  { hour: 13, probability: 0.95, avgDuration: 25, variance: 10 },
+  { hour: 14, probability: 1.0,  avgDuration: 30, variance: 15 },
+  { hour: 15, probability: 1.0,  avgDuration: 25, variance: 10 },
+  { hour: 16, probability: 0.9,  avgDuration: 20, variance: 10 },
+  { hour: 17, probability: 0.5,  avgDuration: 15, variance: 5  },
 ];
 
 async function seedUtilization() {

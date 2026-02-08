@@ -6,6 +6,7 @@ Items logged here are shortcuts or compromises made to accommodate the Monday de
 
 - **Seed data uses DB server clock**: The `seed-utilization.ts` script generates timestamps using `CURRENT_DATE` from the PostgreSQL server (UTC/GMT). In production, timestamps should be stored in UTC but queries should be timezone-aware relative to the facility's local timezone. The current approach works because we control when the seed runs, but real vision service data will come in with the client machine's clock.
 - **No timezone configuration**: The Neon PostgreSQL instance runs in GMT. There's no facility-level timezone setting. Production needs a configurable timezone per facility so that "today's data" means the facility's local date, not UTC.
+- **Hardcoded CT timezone offset in seed**: `seed-policies.ts` uses `TZ_OFFSET_HOURS = 6` (Central Time) to shift appointment times so they display correctly in the browser. This is a demo shortcut — production should store times in UTC and let the frontend handle timezone display, or use a facility timezone config.
 
 ## Authentication & Security
 
@@ -36,6 +37,7 @@ Items logged here are shortcuts or compromises made to accommodate the Monday de
 - **No CI/CD pipeline**: No automated testing, building, or deployment. Need GitHub Actions or similar.
 - **No environment separation**: Single Neon database used for development and demo. Production needs separate dev/staging/prod environments.
 - **Redis disabled**: Caching is disabled (`REDIS_ENABLED=false`). Production with multiple users needs Redis for session management and query caching.
+- **No cron/scheduler**: Morning briefings and scheduled notifications are served as on-demand API endpoints (`/api/webhooks/claw/briefing`). Production needs a proper job scheduler (node-cron, Bull, or external like AWS EventBridge) to trigger these automatically at configurable times per doctor.
 
 ---
 

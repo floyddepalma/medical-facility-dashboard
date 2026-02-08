@@ -107,6 +107,18 @@ export async function seedDemoData() {
          'Exam Room 3 marked for cleaning after last patient. Standard sanitization required.', 
          'pending', 'agent', 'doc-001', 'room-3', NULL, NOW() - INTERVAL '15 minutes', 900000),
         
+        (gen_random_uuid(), 'policy_conflict', 'urgent', 'Patient requesting after-hours appointment', 
+         'Sarah Williams needs urgent follow-up but only available at 5:30 PM today. Approve exception to 5:00 PM end time?', 
+         'pending', 'agent', 'doc-001', NULL, NULL, NOW() - INTERVAL '45 minutes', 2700000),
+        
+        (gen_random_uuid(), 'escalation', 'normal', 'New patient waitlist at capacity', 
+         'New patient slots are fully booked for next 2 weeks. Consider adjusting capacity limits or extending hours?', 
+         'pending', 'agent', 'doc-001', NULL, NULL, NOW() - INTERVAL '1 hour', 3600000),
+        
+        (gen_random_uuid(), 'agent_request', 'normal', 'Double-booking request for urgent case', 
+         'Patient with acute symptoms needs same-day appointment. Only option is 2:45 PM (conflicts with existing 2:30 PM slot). Approve 15-min overlap?', 
+         'pending', 'agent', 'doc-001', NULL, NULL, NOW() - INTERVAL '30 minutes', 1800000),
+        
         (gen_random_uuid(), 'policy_conflict', 'normal', 'Double booking detected', 
          'Dr. Rodriguez has overlapping appointments at 2:00 PM today. Please resolve scheduling conflict.', 
          'pending', 'agent', 'doc-002', NULL, NULL, NOW() - INTERVAL '30 minutes', 1800000),

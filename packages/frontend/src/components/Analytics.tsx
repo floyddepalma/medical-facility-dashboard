@@ -61,7 +61,7 @@ function formatTime(hour: number): string {
   return `${hour - 12}pm`;
 }
 
-// Busy times chart — dual bars: 7-day average (left) + today's actual stacked by room (right)
+// Busy times chart — stacked bars by room with filter checkboxes
 function PeakHoursChart({ 
   data, 
   avgData,
@@ -77,18 +77,32 @@ function PeakHoursChart({
 }) {
   const [hoveredHour, setHoveredHour] = useState<number | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+  const [visibleRooms, setVisibleRooms] = useState<Set<string>>(new Set(rooms.map(r => r.roomId)));
+
+  // Keep visibleRooms in sync when rooms list changes
+  useEffect(() => {
+    setVisibleRooms(new Set(rooms.map(r => r.roomId)));
+  }, [rooms.length]);
 
   const safeHourlyByRoom = hourlyByRoom || {};
-  const safeAvgData = avgData || [];
+
+  // avgData available for future 7-day average overlay
+  void avgData;
 
   // Business hours only (7am - 7pm)
   const businessHours = data.filter(d => d.hour >= 7 && d.hour <= 19);
-  const businessAvg = safeAvgData.filter(d => d.hour >= 7 && d.hour <= 19);
 
-  // Find max across both today and average for consistent scaling
-  const maxTodayMinutes = Math.max(...businessHours.map(d => d.minutes), 0);
-  const maxAvgMinutes = Math.max(...businessAvg.map(d => d.avgMinutes), 0);
-  const maxMinutes = Math.max(maxTodayMinutes, maxAvgMinutes, 1);
+  // Filter room data by visible rooms and recalculate totals
+  const getFilteredRoomData = (hour: number): HourlyRoomData[] => {
+    return (safeHourlyByRoom[hour] || []).filter(r => visibleRooms.has(r.roomId));
+  };
+
+  const getFilteredMinutes = (hour: number): number => {
+    return getFilteredRoomData(hour).reduce((sum, r) => sum + r.minutes, 0);
+  };
+
+  // Max based on filtered data
+  const maxMinutes = Math.max(...businessHours.map(d => getFilteredMinutes(d.hour)), 1);
 
   const handleMouseEnter = (hour: number, event: React.MouseEvent) => {
     setHoveredHour(hour);
@@ -101,10 +115,20 @@ function PeakHoursChart({
     setTooltipPos(null);
   };
 
-  const getAvgMinutes = (hour: number): number => {
-    const found = safeAvgData.find(d => d.hour === hour);
-    return found ? found.avgMinutes : 0;
+  const toggleRoom = (roomId: string) => {
+    setVisibleRooms(prev => {
+      const next = new Set(prev);
+      if (next.has(roomId)) {
+        // Don't allow deselecting all rooms
+        if (next.size > 1) next.delete(roomId);
+      } else {
+        next.add(roomId);
+      }
+      return next;
+    });
   };
+
+  const allSelected = visibleRooms.size === rooms.length;
 
   return (
     <div style={{ marginTop: '16px', position: 'relative' }}>
@@ -127,24 +151,9 @@ function PeakHoursChart({
           <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '8px', color: 'var(--text-heading)' }}>
             {formatTime(hoveredHour)}
           </div>
-          {/* 7-day average */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-            <div style={{
-              width: '12px', height: '12px', borderRadius: '3px',
-              backgroundColor: 'var(--text-tertiary)', opacity: 0.4
-            }} />
-            <span style={{ flex: 1, fontSize: '12px', color: 'var(--text-secondary)' }}>7-day avg</span>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-heading)' }}>
-              {getAvgMinutes(hoveredHour)}m
-            </span>
-          </div>
-          {/* Today's room breakdown */}
-          {(safeHourlyByRoom[hoveredHour] || []).length > 0 ? (
+          {getFilteredRoomData(hoveredHour).length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '4px', marginBottom: '2px' }}>
-                Today by room:
-              </div>
-              {safeHourlyByRoom[hoveredHour].map((room) => (
+              {getFilteredRoomData(hoveredHour).map((room) => (
                 <div key={room.roomId} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <div style={{
                     width: '12px', height: '12px', borderRadius: '3px',
@@ -158,34 +167,28 @@ function PeakHoursChart({
                 borderTop: '1px solid var(--border-subtle)', marginTop: '4px', paddingTop: '6px',
                 display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 600, color: 'var(--text-heading)'
               }}>
-                <span>Today total:</span>
-                <span>{data.find(d => d.hour === hoveredHour)?.minutes || 0}m</span>
+                <span>Total:</span>
+                <span>{getFilteredMinutes(hoveredHour)}m</span>
               </div>
             </div>
           ) : (
-            <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginTop: '4px' }}>No activity today</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>No activity</div>
           )}
         </div>
       )}
 
       {/* Chart area */}
       <div style={{
-        display: 'flex', alignItems: 'flex-end', gap: '3px',
+        display: 'flex', alignItems: 'flex-end', gap: '4px',
         height: '140px', padding: '0 4px'
       }}>
         {businessHours.map((hour) => {
-          const roomData = safeHourlyByRoom[hour.hour] || [];
-          const todayMinutes = hour.minutes;
-          const avgMinutes = getAvgMinutes(hour.hour);
-          const isPeak = hour.hour === peakHour.hour && (todayMinutes > 0 || avgMinutes > 0);
+          const filteredRoomData = getFilteredRoomData(hour.hour);
+          const filteredMinutes = getFilteredMinutes(hour.hour);
+          const isPeak = hour.hour === peakHour.hour && filteredMinutes > 0;
 
-          // Heights as percentages of max
-          const avgHeight = maxMinutes > 0 ? (avgMinutes / maxMinutes) * 100 : 0;
-          const todayHeight = maxMinutes > 0 ? (todayMinutes / maxMinutes) * 100 : 0;
-
-          // Ensure visible minimum for non-zero values
-          const avgDisplay = avgMinutes > 0 ? Math.max(avgHeight, 8) : 0;
-          const todayDisplay = todayMinutes > 0 ? Math.max(todayHeight, 8) : 0;
+          const heightPercent = maxMinutes > 0 ? (filteredMinutes / maxMinutes) * 100 : 0;
+          const displayHeight = filteredMinutes > 0 ? Math.max(heightPercent, 8) : 0;
 
           return (
             <div
@@ -197,63 +200,33 @@ function PeakHoursChart({
               onMouseEnter={(e) => handleMouseEnter(hour.hour, e)}
               onMouseLeave={handleMouseLeave}
             >
-              {/* Dual bar container */}
               <div style={{
-                width: '100%', display: 'flex', gap: '2px', alignItems: 'flex-end',
-                height: '100%',
+                width: '80%',
+                height: `${displayHeight}%`,
+                minHeight: filteredMinutes > 0 ? '6px' : '0px',
+                borderRadius: '4px 4px 0 0',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column-reverse',
+                border: isPeak ? '2px solid var(--color-primary)' : 'none',
                 opacity: hoveredHour === null || hoveredHour === hour.hour ? 1 : 0.5,
-                transition: 'opacity 0.2s ease'
+                transition: 'all 0.2s ease'
               }}>
-                {/* Left bar: 7-day average (solid muted color) */}
-                <div style={{
-                  flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', height: '100%'
-                }}>
-                  <div style={{
-                    width: '100%',
-                    height: `${avgDisplay}%`,
-                    minHeight: avgMinutes > 0 ? '6px' : '0px',
-                    borderRadius: '3px 3px 0 0',
-                    backgroundColor: 'var(--text-tertiary)',
-                    opacity: 0.25,
-                    transition: 'height 0.3s ease'
-                  }} />
-                </div>
-                {/* Right bar: Today's actual (stacked by room) */}
-                <div style={{
-                  flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', height: '100%'
-                }}>
-                  <div style={{
-                    width: '100%',
-                    height: `${todayDisplay}%`,
-                    minHeight: todayMinutes > 0 ? '6px' : '0px',
-                    borderRadius: '3px 3px 0 0',
-                    overflow: 'hidden',
-                    display: 'flex',
-                    flexDirection: 'column-reverse',
-                    border: isPeak ? '2px solid var(--color-primary)' : 'none',
-                    transition: 'height 0.3s ease'
-                  }}>
-                    {roomData.length > 0 ? (
-                      roomData.map((room) => {
-                        const segmentHeight = todayMinutes > 0 ? (room.minutes / todayMinutes) * 100 : 0;
-                        return (
-                          <div
-                            key={room.roomId}
-                            style={{
-                              height: `${segmentHeight}%`,
-                              backgroundColor: room.color,
-                              transition: 'height 0.3s ease'
-                            }}
-                          />
-                        );
-                      })
-                    ) : (
-                      todayMinutes > 0 ? (
-                        <div style={{ height: '100%', backgroundColor: 'var(--color-primary)', opacity: 0.6 }} />
-                      ) : null
-                    )}
-                  </div>
-                </div>
+                {filteredRoomData.length > 0 ? (
+                  filteredRoomData.map((room) => {
+                    const segmentHeight = filteredMinutes > 0 ? (room.minutes / filteredMinutes) * 100 : 0;
+                    return (
+                      <div
+                        key={room.roomId}
+                        style={{
+                          height: `${segmentHeight}%`,
+                          backgroundColor: room.color,
+                          transition: 'height 0.3s ease'
+                        }}
+                      />
+                    );
+                  })
+                ) : null}
               </div>
             </div>
           );
@@ -262,7 +235,7 @@ function PeakHoursChart({
 
       {/* Hour labels */}
       <div style={{
-        display: 'flex', gap: '3px', padding: '8px 4px 0',
+        display: 'flex', gap: '4px', padding: '8px 4px 0',
         borderTop: '1px solid var(--border-subtle)'
       }}>
         {businessHours.map((hour) => (
@@ -284,29 +257,64 @@ function PeakHoursChart({
         </div>
       )}
 
-      {/* Legend */}
+      {/* Legend with checkboxes */}
       <div style={{
-        display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '16px',
-        padding: '12px', backgroundColor: 'var(--bg-surface)', borderRadius: '8px'
+        display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '16px',
+        padding: '12px', backgroundColor: 'var(--bg-surface)', borderRadius: '8px',
+        alignItems: 'center'
       }}>
-        {/* 7-day avg indicator */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <div style={{
-            width: '12px', height: '12px', borderRadius: '3px',
-            backgroundColor: 'var(--text-tertiary)', opacity: 0.25
-          }} />
-          <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>7-day avg</span>
-        </div>
-        {/* Room colors */}
-        {rooms.map((room) => (
-          <div key={room.roomId} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <div style={{
-              width: '12px', height: '12px', borderRadius: '3px',
-              backgroundColor: room.color
-            }} />
-            <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{room.roomName}</span>
-          </div>
-        ))}
+        <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginRight: '4px' }}>Filter:</span>
+        {rooms.map((room) => {
+          const isVisible = visibleRooms.has(room.roomId);
+          return (
+            <label
+              key={room.roomId}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '6px',
+                cursor: 'pointer', padding: '4px 8px', borderRadius: '6px',
+                backgroundColor: isVisible ? 'var(--bg-surface-raised)' : 'transparent',
+                border: `1px solid ${isVisible ? 'var(--border-default)' : 'transparent'}`,
+                transition: 'all 0.15s ease',
+                opacity: isVisible ? 1 : 0.5
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={isVisible}
+                onChange={() => toggleRoom(room.roomId)}
+                style={{ display: 'none' }}
+              />
+              <div style={{
+                width: '14px', height: '14px', borderRadius: '3px',
+                backgroundColor: isVisible ? room.color : 'transparent',
+                border: `2px solid ${room.color}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.15s ease',
+                flexShrink: 0
+              }}>
+                {isVisible && (
+                  <svg width="8" height="8" viewBox="0 0 10 10" fill="none">
+                    <path d="M2 5L4.5 7.5L8 2.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
+              </div>
+              <span style={{ fontSize: '12px', color: isVisible ? 'var(--text-secondary)' : 'var(--text-tertiary)' }}>
+                {room.roomName}
+              </span>
+            </label>
+          );
+        })}
+        {!allSelected && (
+          <button
+            onClick={() => setVisibleRooms(new Set(rooms.map(r => r.roomId)))}
+            style={{
+              fontSize: '11px', color: 'var(--color-primary)', background: 'none',
+              border: 'none', cursor: 'pointer', padding: '4px 8px', fontWeight: 600
+            }}
+          >
+            Show all
+          </button>
+        )}
       </div>
     </div>
   );
