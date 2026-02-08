@@ -1,5 +1,5 @@
 -- Add policies table for scheduling policy management
--- Used by CareSync MCP Server and Cara Autonomous Agent
+-- Used by CareSync MCP Server and Cara Agent
 
 CREATE TABLE IF NOT EXISTS policies (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

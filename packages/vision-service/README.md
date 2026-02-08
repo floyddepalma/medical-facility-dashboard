@@ -85,7 +85,7 @@ Press Ctrl+C to stop
 1. **Start all services:**
    - Backend: `cd packages/backend && npm run dev`
    - Frontend: `cd packages/frontend && npm run dev`
-   - Cara: `cd packages/cara-autonomous-agent && npm run dev`
+   - Cara: `cd packages/cara-agent && npm run dev`
    - Vision: `cd packages/vision-service && python src/main.py`
 
 2. **Login to dashboard:**

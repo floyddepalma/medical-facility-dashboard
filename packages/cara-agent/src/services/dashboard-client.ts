@@ -61,7 +61,7 @@ export async function createActionItem(actionItem: CreateActionItemRequest) {
       urgency: urgencyMap[actionItem.priority] || 'normal',
       title: actionItem.title,
       description: actionItem.description,
-      reasoning: 'Created by Cara Autonomous Agent'
+      reasoning: 'Created by Cara Agent'
     };
     const response = await client.post('/api/actions', backendAction);
     console.log('[Dashboard] Action item created:', response.data.action?.id || response.data.id);

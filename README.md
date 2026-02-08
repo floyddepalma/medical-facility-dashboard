@@ -21,7 +21,7 @@ Monorepo with four main packages:
 
 - **Frontend**: React with TypeScript (port 5173)
 - **Backend**: Node.js/Express API server (port 3000)
-- **Cara Autonomous Agent**: AI-powered operations agent (port 8000)
+- **Cara Agent**: AI-powered operations agent (port 8000)
 - **Vision Service**: Python/OpenCV room occupancy detection (optional)
 - **Database**: PostgreSQL for persistent data
 - **Integration**: CareSync MCP Server for scheduling policies
@@ -37,7 +37,7 @@ Monorepo with four main packages:
 ├── packages/
 │   ├── frontend/                 # React dashboard UI (port 5173)
 │   ├── backend/                  # Node.js API server (port 3000)
-│   ├── cara-autonomous-agent/    # Cara AI agent (port 8000)
+│   ├── cara-agent/    # Cara AI agent (port 8000)
 │   └── vision-service/           # Python/OpenCV occupancy detection
 ├── docs/                         # Documentation
 │   ├── CLAW_AGENT_SETUP.md      # Cara setup guide
@@ -72,7 +72,7 @@ cd packages/frontend
 npm run dev
 
 # Terminal 3: Cara Agent
-cd packages/cara-autonomous-agent
+cd packages/cara-agent
 npm run dev
 ```
 

@@ -19,7 +19,7 @@ Monorepo structure with three main packages.
 ├── packages/
 │   ├── frontend/                 # React/TypeScript dashboard UI
 │   ├── backend/                  # Node.js/Express API server
-│   └── cara-autonomous-agent/    # Cara AI operations agent
+│   └── cara-agent/    # Cara AI operations agent
 ├── docs/                         # Documentation
 │   ├── CLAW_AGENT_SETUP.md
 │   ├── MONDAY_DEMO_PLAN.md

@@ -2,7 +2,7 @@
  * Policy Routes
  * 
  * CRUD + validation for scheduling policies.
- * Used by the dashboard UI and Cara Autonomous Agent (via Open CLAW).
+ * Used by the dashboard UI and Cara Agent (via Open CLAW).
  */
 
 import { Router, Request, Response } from 'express';

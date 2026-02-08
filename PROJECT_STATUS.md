@@ -26,7 +26,7 @@ The CareSync Dashboard is fully functional and demo-ready. All core features are
 - ✅ JWT authentication
 - ✅ Role-based access control
 - ✅ Facility status broadcaster (10-second intervals)
-- ✅ Integration with Cara Autonomous Agent
+- ✅ Integration with Cara Agent
 - ✅ Audit logging
 - ✅ PII filtering
 
@@ -93,7 +93,7 @@ The CareSync Dashboard is fully functional and demo-ready. All core features are
 
 ### Environment Variables Set:
 - ✅ `packages/backend/.env` - Database, CLAW integration, OpenRouter
-- ✅ `packages/cara-autonomous-agent/.env` - Dashboard integration, AI model
+- ✅ `packages/cara-agent/.env` - Dashboard integration, AI model
 
 ### Authentication Tokens:
 - ✅ `CLAW_AUTH_TOKEN`: dashboard_token_12345 (Dashboard → Cara)
@@ -158,7 +158,7 @@ See `START_ALL.md` for complete instructions.
 ## 🎉 Accomplishments Today
 
 ### Saturday Morning (6:00 AM - 7:00 AM):
-1. ✅ Built Cara Autonomous Agent from scratch
+1. ✅ Built Cara Agent from scratch
 2. ✅ Integrated with dashboard backend
 3. ✅ Configured Claude 3.5 Sonnet AI
 4. ✅ Implemented decision engine

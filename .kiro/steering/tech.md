@@ -19,11 +19,11 @@ Monorepo with separate frontend and backend packages.
 
 ### Integration Layer
 - **CareSync MCP Server**: Scheduling policy management via MCP client
-- **Cara Autonomous Agent**: AI task coordination via HTTP (custom-built)
+- **Cara Agent**: AI task coordination via HTTP (custom-built)
 
 ### Authentication
 - JWT-based authentication with role-based access control
-- API key authentication for Cara Autonomous Agent
+- API key authentication for Cara Agent
 
 ## Testing
 

@@ -115,7 +115,7 @@ Press Ctrl+C to stop
 
 2. **Cara Agent** (Terminal 2):
    ```bash
-   cd packages/cara-autonomous-agent
+   cd packages/cara-agent
    npm run dev
    ```
 

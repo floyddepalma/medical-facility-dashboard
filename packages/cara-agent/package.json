@@ -1,7 +1,7 @@
 {
-  "name": "@caresync/cara-autonomous-agent",
+  "name": "@caresync/cara-agent",
   "version": "1.0.0",
-  "description": "Cara Autonomous Agent - AI-powered medical facility operations",
+  "description": "Cara Agent - AI-powered medical facility operations",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch --env-file=.env src/index.ts",

@@ -38,7 +38,7 @@
 1. [ ] **Backend** - `cd packages/backend && npm run dev`
    - Wait for "✓ Server running on port 3000"
    
-2. [ ] **Cara** - `cd packages/cara-autonomous-agent && npm run dev`
+2. [ ] **Cara** - `cd packages/cara-agent && npm run dev`
    - Wait for "✓ Cara agent started"
    - Check for "Facility status sent successfully"
    

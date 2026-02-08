@@ -12,7 +12,7 @@ Complete startup guide for running the full CareSync system locally.
 
 ### 1. Configure Cara Agent
 
-Edit `packages/cara-autonomous-agent/.env` and add your OpenRouter API key:
+Edit `packages/cara-agent/.env` and add your OpenRouter API key:
 
 ```bash
 OPENROUTER_API_KEY=your-actual-openrouter-key-here
@@ -46,9 +46,9 @@ Should show:
 - ✓ WebSocket server initialized
 - ✓ Server running on port 3000
 
-#### Terminal 2: Cara Autonomous Agent (Start Second)
+#### Terminal 2: Cara Agent (Start Second)
 ```bash
-cd packages/cara-autonomous-agent
+cd packages/cara-agent
 npm run dev
 ```
 
@@ -144,7 +144,7 @@ After starting all three:
 
 ### Cara shows as "offline"
 - Check Cara is running on port 8000
-- Verify `OPENROUTER_API_KEY` is set in `packages/cara-autonomous-agent/.env`
+- Verify `OPENROUTER_API_KEY` is set in `packages/cara-agent/.env`
 - Check authentication tokens match in both `.env` files
 
 ### No tasks being created
@@ -178,6 +178,6 @@ Press `Ctrl+C` in each terminal window to stop the services gracefully.
 
 ## Next Steps
 
-- Review `packages/cara-autonomous-agent/README.md` for Cara configuration
+- Review `packages/cara-agent/README.md` for Cara configuration
 - Check `docs/MONDAY_DEMO_PLAN.md` for demo script
 - See `docs/USER_GUIDE.md` for feature documentation

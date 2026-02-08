@@ -1,4 +1,4 @@
-# Cara Autonomous Agent - Implementation Complete
+# Cara Agent - Implementation Complete
 
 ## What We Built
 
@@ -10,7 +10,7 @@ Cara is a custom-built autonomous AI agent that monitors your CareSync medical f
 packages/
 ├── frontend/                    # Dashboard UI (port 5173)
 ├── backend/                     # API Server (port 3000)
-└── cara-autonomous-agent/       # Cara Autonomous Agent (port 8000) ✨ NEW
+└── cara-agent/       # Cara Agent (port 8000) ✨ NEW
     ├── src/
     │   ├── index.ts            # Express server
     │   ├── routes/
@@ -116,7 +116,7 @@ CLAW_API_KEY=claw_secret_key_12345
 
 ### 1. Start Cara
 ```bash
-cd packages/cara-autonomous-agent
+cd packages/cara-agent
 npm run dev
 ```
 
