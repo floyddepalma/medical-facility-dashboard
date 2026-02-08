@@ -4,18 +4,48 @@ async function reset() {
   try {
     console.log('Resetting database to default state...');
 
-    // Drop all tables in reverse order of dependencies
+    // Drop all tables and indexes
     await pool.query(`
       DROP TABLE IF EXISTS audit_logs CASCADE;
       DROP TABLE IF EXISTS patient_flow CASCADE;
       DROP TABLE IF EXISTS tasks CASCADE;
       DROP TABLE IF EXISTS action_items CASCADE;
       DROP TABLE IF EXISTS equipment CASCADE;
+      DROP TABLE IF EXISTS time_blocks CASCADE;
+      DROP TABLE IF EXISTS appointments CASCADE;
       DROP TABLE IF EXISTS rooms CASCADE;
       DROP TABLE IF EXISTS user_managed_doctors CASCADE;
       DROP TABLE IF EXISTS users CASCADE;
       DROP TABLE IF EXISTS doctors CASCADE;
       DROP VIEW IF EXISTS daily_metrics_view CASCADE;
+      
+      -- Drop all indexes
+      DROP INDEX IF EXISTS idx_users_email;
+      DROP INDEX IF EXISTS idx_users_role;
+      DROP INDEX IF EXISTS idx_rooms_status;
+      DROP INDEX IF EXISTS idx_rooms_type;
+      DROP INDEX IF EXISTS idx_equipment_status;
+      DROP INDEX IF EXISTS idx_equipment_room;
+      DROP INDEX IF EXISTS idx_action_items_status;
+      DROP INDEX IF EXISTS idx_action_items_urgency;
+      DROP INDEX IF EXISTS idx_action_items_doctor;
+      DROP INDEX IF EXISTS idx_action_items_created_at;
+      DROP INDEX IF EXISTS idx_tasks_status;
+      DROP INDEX IF EXISTS idx_tasks_assignee;
+      DROP INDEX IF EXISTS idx_tasks_doctor;
+      DROP INDEX IF EXISTS idx_tasks_start_time;
+      DROP INDEX IF EXISTS idx_audit_logs_user;
+      DROP INDEX IF EXISTS idx_audit_logs_timestamp;
+      DROP INDEX IF EXISTS idx_patient_flow_status;
+      DROP INDEX IF EXISTS idx_patient_flow_doctor;
+      DROP INDEX IF EXISTS idx_patient_flow_arrival;
+      DROP INDEX IF EXISTS idx_appointments_doctor;
+      DROP INDEX IF EXISTS idx_appointments_start_time;
+      DROP INDEX IF EXISTS idx_appointments_status;
+      DROP INDEX IF EXISTS idx_appointments_doctor_date;
+      DROP INDEX IF EXISTS idx_time_blocks_doctor;
+      DROP INDEX IF EXISTS idx_time_blocks_start_time;
+      DROP INDEX IF EXISTS idx_time_blocks_doctor_date;
     `);
 
     console.log('✓ Dropped all tables');

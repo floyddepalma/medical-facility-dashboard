@@ -7,15 +7,35 @@ export type DetailCategory =
   | { section: 'rooms'; filter: string; label: string }
   | { section: 'equipment'; filter: string; label: string };
 
+interface RoomUtilization {
+  roomId: string;
+  todayTotalSeconds: number;
+  todaySessionCount: number;
+  avgSessionSeconds: number;
+  activeSession: { startedAt: string; currentDuration: number } | null;
+}
+
 interface Props {
   category: DetailCategory | null;
   onClose: () => void;
   isOpen: boolean;
 }
 
+function formatDuration(seconds: number): string {
+  if (seconds < 60) return `${seconds}s`;
+  const mins = Math.floor(seconds / 60);
+  const hrs = Math.floor(mins / 60);
+  if (hrs > 0) {
+    const remainingMins = mins % 60;
+    return `${hrs}h ${remainingMins}m`;
+  }
+  return `${mins}m`;
+}
+
 export default function StatusDetailModal({ category, onClose, isOpen }: Props) {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [utilization, setUtilization] = useState<Map<string, RoomUtilization>>(new Map());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,10 +44,19 @@ export default function StatusDetailModal({ category, onClose, isOpen }: Props) 
     async function load() {
       try {
         if (category!.section === 'rooms') {
-          const data = await api.getRooms();
-          setRooms(data.rooms.filter(r =>
+          const [roomsData, utilizationData] = await Promise.all([
+            api.getRooms(),
+            api.getUtilization()
+          ]);
+          setRooms(roomsData.rooms.filter(r =>
             r.type === category!.filter || r.status === category!.filter
           ));
+          // Build utilization map
+          const utilMap = new Map<string, RoomUtilization>();
+          for (const room of utilizationData.rooms) {
+            utilMap.set(room.roomId, room);
+          }
+          setUtilization(utilMap);
         } else if (category!.section === 'equipment') {
           const data = await api.getEquipment();
           setEquipment(data.equipment.filter(e => e.status === category!.filter));
@@ -39,6 +68,12 @@ export default function StatusDetailModal({ category, onClose, isOpen }: Props) 
       }
     }
     load();
+    
+    // Refresh utilization data every 5 seconds for rooms
+    if (category!.section === 'rooms') {
+      const interval = setInterval(load, 5000);
+      return () => clearInterval(interval);
+    }
   }, [category]);
 
   if (!category) return null;
@@ -105,7 +140,13 @@ export default function StatusDetailModal({ category, onClose, isOpen }: Props) 
       }
       return (
         <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {rooms.map(room => (
+          {rooms.map(room => {
+            const roomUtil = utilization.get(room.id);
+            const utilizationPercent = roomUtil && roomUtil.todayTotalSeconds > 0 
+              ? Math.min(Math.round((roomUtil.todayTotalSeconds / (8 * 3600)) * 100), 100)
+              : 0;
+            
+            return (
             <div key={room.id} style={{
               padding: '16px', borderRadius: '10px',
               background: 'var(--bg-surface-raised)', border: '1px solid var(--border-subtle)',
@@ -122,6 +163,96 @@ export default function StatusDetailModal({ category, onClose, isOpen }: Props) 
                 </div>
                 {statusBadge(room.status)}
               </div>
+
+              {/* Active session indicator */}
+              {roomUtil?.activeSession && (
+                <div style={{
+                  padding: '10px 12px',
+                  borderRadius: '8px',
+                  backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                  marginBottom: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <div style={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    backgroundColor: 'var(--color-accent-danger)',
+                    animation: 'pulse 2s infinite'
+                  }} />
+                  <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                    In use for <strong style={{ color: 'var(--text-heading)' }}>{formatDuration(roomUtil.activeSession.currentDuration)}</strong>
+                  </span>
+                </div>
+              )}
+
+              {/* Utilization stats */}
+              {roomUtil && (
+                <div style={{
+                  padding: '12px',
+                  borderRadius: '8px',
+                  backgroundColor: 'var(--bg-surface)',
+                  border: '1px solid var(--border-subtle)',
+                  marginBottom: '12px'
+                }}>
+                  <div style={{ 
+                    fontSize: '11px', 
+                    fontWeight: 600, 
+                    color: 'var(--text-secondary)', 
+                    marginBottom: '10px', 
+                    textTransform: 'uppercase', 
+                    letterSpacing: '0.04em' 
+                  }}>
+                    Today's Utilization
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginBottom: '10px' }}>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-primary)' }}>
+                        {formatDuration(roomUtil.todayTotalSeconds)}
+                      </div>
+                      <div style={{ fontSize: '10px', color: 'var(--text-tertiary)' }}>Total</div>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-primary)' }}>
+                        {roomUtil.todaySessionCount}
+                      </div>
+                      <div style={{ fontSize: '10px', color: 'var(--text-tertiary)' }}>Sessions</div>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-primary)' }}>
+                        {roomUtil.avgSessionSeconds > 0 ? formatDuration(roomUtil.avgSessionSeconds) : '—'}
+                      </div>
+                      <div style={{ fontSize: '10px', color: 'var(--text-tertiary)' }}>Avg</div>
+                    </div>
+                  </div>
+                  {/* Utilization bar */}
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                      <span style={{ fontSize: '10px', color: 'var(--text-tertiary)' }}>Daily capacity (8hr)</span>
+                      <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--text-heading)' }}>{utilizationPercent}%</span>
+                    </div>
+                    <div style={{
+                      height: '4px',
+                      borderRadius: '2px',
+                      backgroundColor: 'var(--border-subtle)',
+                      overflow: 'hidden'
+                    }}>
+                      <div style={{
+                        width: `${utilizationPercent}%`,
+                        height: '100%',
+                        backgroundColor: utilizationPercent > 80 
+                          ? 'var(--color-accent-danger)' 
+                          : utilizationPercent > 50 
+                            ? 'var(--color-accent-warn)' 
+                            : 'var(--color-accent-success)',
+                        transition: 'width 0.3s ease'
+                      }} />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Equipment list */}
               {room.equipment && room.equipment.length > 0 && (
@@ -162,7 +293,7 @@ export default function StatusDetailModal({ category, onClose, isOpen }: Props) 
                 <span>Updated {new Date(room.lastUpdated).toLocaleTimeString()}</span>
               </div>
             </div>
-          ))}
+          )})}
         </div>
       );
     }

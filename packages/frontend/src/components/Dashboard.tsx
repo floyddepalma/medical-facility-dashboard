@@ -20,25 +20,34 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
   const [metrics, setMetrics] = useState<DailyMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [detailCategory, setDetailCategory] = useState<DetailCategory | null>(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const { messages, addToast, dismissToast } = useToast();
 
   useEffect(() => {
     loadData();
-    const interval = setInterval(loadData, 10000);
-    return () => clearInterval(interval);
+    const dataInterval = setInterval(loadData, 10000);
+    const timeInterval = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => {
+      clearInterval(dataInterval);
+      clearInterval(timeInterval);
+    };
   }, []);
 
   async function loadData() {
     try {
-      const [statusData, actionsData, tasksData, metricsData] = await Promise.all([
+      const [statusData, actionsData, completedActionsData, tasksData, completedTasksData, metricsData] = await Promise.all([
         api.getFacilityStatus(),
         api.getActions({ status: 'pending' }),
+        api.getActions({ status: 'completed' }),
         api.getTasks(),
+        api.getTasks({ status: 'completed' }),
         api.getDailyMetrics(),
       ]);
       setFacilityStatus(statusData);
-      setActions(actionsData.actions);
-      setTasks(tasksData.tasks);
+      // Combine active and completed actions for the component to handle
+      setActions([...actionsData.actions, ...completedActionsData.actions]);
+      // Combine active and completed tasks for the component to handle
+      setTasks([...tasksData.tasks, ...completedTasksData.tasks]);
       setMetrics(metricsData);
     } catch (err) {
       console.error('Failed to load data:', err);
@@ -96,12 +105,30 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
       >
         <div className="container">
           <div style={{ marginBottom: '28px' }}>
-            <h2 style={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em' }}>
-              Dashboard
-            </h2>
-            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-              Real-time facility overview and operations
-            </p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <h2 style={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em' }}>
+                  Dashboard
+                </h2>
+                <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                  Real-time facility overview and operations
+                </p>
+              </div>
+              <div style={{ 
+                textAlign: 'right',
+                padding: '8px 16px',
+                backgroundColor: 'var(--bg-surface)',
+                borderRadius: '8px',
+                border: '1px solid var(--border-subtle)'
+              }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginBottom: '2px' }}>
+                  Current Time
+                </div>
+                <div style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-heading)', fontVariantNumeric: 'tabular-nums' }}>
+                  {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                </div>
+              </div>
+            </div>
           </div>
 
           {facilityStatus && (

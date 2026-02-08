@@ -16,6 +16,7 @@
     "lint": "eslint src --ext .ts",
     "db:migrate": "tsx --env-file=.env src/db/migrate.ts",
     "db:seed": "tsx --env-file=.env src/db/seed.ts",
+    "db:seed:utilization": "tsx --env-file=.env src/db/seed-utilization.ts",
     "db:reset": "tsx --env-file=.env src/db/reset.ts",
     "list-doctors": "tsx --env-file=.env src/scripts/list-doctors.ts"
   },

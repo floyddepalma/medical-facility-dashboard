@@ -17,11 +17,12 @@ This dashboard enables medical staff to focus on patient care by surfacing only 
 
 ## Architecture
 
-Monorepo with three main packages:
+Monorepo with four main packages:
 
 - **Frontend**: React with TypeScript (port 5173)
 - **Backend**: Node.js/Express API server (port 3000)
 - **Cara Autonomous Agent**: AI-powered operations agent (port 8000)
+- **Vision Service**: Python/OpenCV room occupancy detection (optional)
 - **Database**: PostgreSQL for persistent data
 - **Integration**: CareSync MCP Server for scheduling policies
 - **Authentication**: JWT-based with role-based access control + API key for Cara
@@ -36,12 +37,14 @@ Monorepo with three main packages:
 ├── packages/
 │   ├── frontend/                 # React dashboard UI (port 5173)
 │   ├── backend/                  # Node.js API server (port 3000)
-│   └── cara-autonomous-agent/    # Cara AI agent (port 8000)
+│   ├── cara-autonomous-agent/    # Cara AI agent (port 8000)
+│   └── vision-service/           # Python/OpenCV occupancy detection
 ├── docs/                         # Documentation
 │   ├── CLAW_AGENT_SETUP.md      # Cara setup guide
 │   ├── MONDAY_DEMO_PLAN.md      # Demo script
 │   └── ...
 ├── START_ALL.md                  # Quick start guide
+├── VISION_SERVICE_SETUP.md       # Vision service setup guide
 ├── CARA_AGENT_COMPLETE.md        # Cara implementation details
 └── package.json
 ```
@@ -127,6 +130,7 @@ Dual testing approach for comprehensive coverage:
 ## Documentation
 
 - [START_ALL.md](./START_ALL.md) - Complete startup guide for all services
+- [VISION_SERVICE_SETUP.md](./VISION_SERVICE_SETUP.md) - Computer vision setup guide
 - [CARA_AGENT_COMPLETE.md](./CARA_AGENT_COMPLETE.md) - Cara implementation details
 - [docs/CLAW_AGENT_SETUP.md](./docs/CLAW_AGENT_SETUP.md) - Cara configuration guide
 - [docs/MONDAY_DEMO_PLAN.md](./docs/MONDAY_DEMO_PLAN.md) - Demo script and talking points

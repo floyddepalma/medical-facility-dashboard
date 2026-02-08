@@ -201,3 +201,20 @@ FROM patient_flow pf
 LEFT JOIN tasks t ON DATE(t.start_time) = DATE(pf.arrival_time) AND t.status = 'completed'
 WHERE pf.status = 'completed'
 GROUP BY DATE(pf.arrival_time);
+
+-- Room utilization tracking table
+CREATE TABLE IF NOT EXISTS room_utilization (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  room_id UUID NOT NULL,
+  started_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  ended_at TIMESTAMP WITH TIME ZONE,
+  duration_seconds INTEGER,
+  source VARCHAR(50) DEFAULT 'vision' CHECK (source IN ('vision', 'manual', 'system')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_utilization_room FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE
+);
+
+-- Indexes for room utilization
+CREATE INDEX IF NOT EXISTS idx_room_utilization_room ON room_utilization(room_id);
+CREATE INDEX IF NOT EXISTS idx_room_utilization_started ON room_utilization(started_at);
+CREATE INDEX IF NOT EXISTS idx_room_utilization_room_date ON room_utilization(room_id, started_at);

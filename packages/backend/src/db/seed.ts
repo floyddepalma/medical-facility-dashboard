@@ -78,29 +78,37 @@ async function seed() {
 
     console.log('✓ Created equipment for treatment rooms');
 
-    // Create sample patient flow
+    // Create sample patient flow (including completed for metrics)
     await pool.query(
-      `INSERT INTO patient_flow (patient_id, status, doctor_id, arrival_time, service_start_time)
+      `INSERT INTO patient_flow (patient_id, status, doctor_id, arrival_time, service_start_time, service_end_time, checkout_time)
        VALUES 
-         ('PATIENT_001', 'waiting', $1, CURRENT_TIMESTAMP - INTERVAL '15 minutes', NULL),
-         ('PATIENT_002', 'in_examination', $2, CURRENT_TIMESTAMP - INTERVAL '45 minutes', CURRENT_TIMESTAMP - INTERVAL '30 minutes'),
-         ('PATIENT_003', 'in_treatment', $3, CURRENT_TIMESTAMP - INTERVAL '90 minutes', CURRENT_TIMESTAMP - INTERVAL '60 minutes')`,
+         ('PATIENT_001', 'waiting', $1, CURRENT_TIMESTAMP - INTERVAL '15 minutes', NULL, NULL, NULL),
+         ('PATIENT_002', 'in_examination', $2, CURRENT_TIMESTAMP - INTERVAL '45 minutes', CURRENT_TIMESTAMP - INTERVAL '30 minutes', NULL, NULL),
+         ('PATIENT_003', 'in_treatment', $3, CURRENT_TIMESTAMP - INTERVAL '90 minutes', CURRENT_TIMESTAMP - INTERVAL '60 minutes', NULL, NULL),
+         ('PATIENT_004', 'completed', $1, CURRENT_TIMESTAMP - INTERVAL '4 hours', CURRENT_TIMESTAMP - INTERVAL '3 hours 45 minutes', CURRENT_TIMESTAMP - INTERVAL '3 hours 15 minutes', CURRENT_TIMESTAMP - INTERVAL '3 hours'),
+         ('PATIENT_005', 'completed', $2, CURRENT_TIMESTAMP - INTERVAL '5 hours', CURRENT_TIMESTAMP - INTERVAL '4 hours 50 minutes', CURRENT_TIMESTAMP - INTERVAL '4 hours', CURRENT_TIMESTAMP - INTERVAL '3 hours 45 minutes'),
+         ('PATIENT_006', 'completed', $3, CURRENT_TIMESTAMP - INTERVAL '6 hours', CURRENT_TIMESTAMP - INTERVAL '5 hours 45 minutes', CURRENT_TIMESTAMP - INTERVAL '5 hours', CURRENT_TIMESTAMP - INTERVAL '4 hours 50 minutes'),
+         ('PATIENT_007', 'completed', $1, CURRENT_TIMESTAMP - INTERVAL '7 hours', CURRENT_TIMESTAMP - INTERVAL '6 hours 50 minutes', CURRENT_TIMESTAMP - INTERVAL '6 hours 20 minutes', CURRENT_TIMESTAMP - INTERVAL '6 hours'),
+         ('PATIENT_008', 'completed', $2, CURRENT_TIMESTAMP - INTERVAL '8 hours', CURRENT_TIMESTAMP - INTERVAL '7 hours 45 minutes', CURRENT_TIMESTAMP - INTERVAL '7 hours', CURRENT_TIMESTAMP - INTERVAL '6 hours 45 minutes')`,
       [doctor1.id, doctor2.id, doctor3.id]
     );
 
-    console.log('✓ Created sample patient flow');
+    console.log('✓ Created sample patient flow (including 5 completed for metrics)');
 
-    // Create sample tasks
+    // Create sample tasks (mix of pending, in_progress, and completed)
     await pool.query(
-      `INSERT INTO tasks (type, description, assignee, status, doctor_id, created_by)
+      `INSERT INTO tasks (type, description, assignee, status, doctor_id, created_by, start_time, end_time)
        VALUES 
-         ('room_preparation', 'Prepare Exam Room 1 for next patient', 'agent', 'in_progress', $1, $2),
-         ('equipment_check', 'Daily equipment check for Treatment Room A', 'agent', 'completed', $1, $2),
-         ('supply_restock', 'Restock supplies in Exam Room 2', $3, 'pending', $1, $2)`,
-      [doctor1.id, assistantUser?.id || userResult.rows[0].id, assistantUser?.id || userResult.rows[0].id]
+         ('room_preparation', 'Prepare Exam Room 1 for next patient', 'agent', 'in_progress', $1, $2, CURRENT_TIMESTAMP - INTERVAL '10 minutes', NULL),
+         ('supply_restock', 'Restock supplies in Exam Room 2', 'staff', 'pending', $1, $2, NULL, NULL),
+         ('equipment_check', 'Daily equipment check for Treatment Room A', 'agent', 'completed', $1, $2, CURRENT_TIMESTAMP - INTERVAL '2 hours', CURRENT_TIMESTAMP - INTERVAL '1 hour 45 minutes'),
+         ('room_cleaning', 'Clean and sanitize Exam Room 3', 'staff', 'completed', $1, $2, CURRENT_TIMESTAMP - INTERVAL '3 hours', CURRENT_TIMESTAMP - INTERVAL '2 hours 30 minutes'),
+         ('patient_prep', 'Prepare patient files for afternoon appointments', 'agent', 'completed', $1, $2, CURRENT_TIMESTAMP - INTERVAL '4 hours', CURRENT_TIMESTAMP - INTERVAL '3 hours 50 minutes'),
+         ('supply_check', 'Verify medical supply inventory', 'staff', 'completed', $1, $2, CURRENT_TIMESTAMP - INTERVAL '5 hours', CURRENT_TIMESTAMP - INTERVAL '4 hours 30 minutes')`,
+      [doctor1.id, assistantUser?.id || userResult.rows[0].id]
     );
 
-    console.log('✓ Created sample tasks');
+    console.log('✓ Created sample tasks (2 active, 4 completed)');
 
     // Create sample action items
     await pool.query(

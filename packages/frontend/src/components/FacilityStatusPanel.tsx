@@ -38,12 +38,84 @@ export default function FacilityStatusPanel({ status, onDrillDown, activeCategor
     return activeCategory?.section === section && activeCategory?.filter === filter;
   };
 
+  // Compute quick-glance numbers
+  const totalPatients = status.patientCounts.waiting + status.patientCounts.inExamination 
+    + status.patientCounts.inTreatment + status.patientCounts.checkingOut;
+  const totalRooms = status.roomSummary.examinationRooms.total + status.roomSummary.treatmentRooms.total;
+  const availableRooms = status.roomSummary.examinationRooms.available + status.roomSummary.treatmentRooms.available;
+  const occupiedRooms = status.roomSummary.examinationRooms.occupied + status.roomSummary.treatmentRooms.occupied;
+  const totalEquipment = status.equipmentSummary.operational + status.equipmentSummary.inUse 
+    + status.equipmentSummary.needsMaintenance + status.equipmentSummary.offline;
+  const equipmentIssues = status.equipmentSummary.needsMaintenance + status.equipmentSummary.offline;
+  const totalActionItems = status.actionItemCounts.urgent + status.actionItemCounts.normal + status.actionItemCounts.low;
+
+  // Format operating hours to 12h
+  const formatOpHour = (time: string) => {
+    const [h, m] = time.split(':').map(Number);
+    const suffix = h >= 12 ? 'pm' : 'am';
+    const hour12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+    return m === 0 ? `${hour12}${suffix}` : `${hour12}:${String(m).padStart(2, '0')}${suffix}`;
+  };
+
   return (
     <div className="card">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '20px' }}>
         <h2 style={{ margin: 0 }}>Facility Status</h2>
         <div style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>
-          {status.operatingHours.open} – {status.operatingHours.close} · Updated {new Date(status.timestamp).toLocaleTimeString()}
+          Hours: {formatOpHour(status.operatingHours.open)} – {formatOpHour(status.operatingHours.close)}
+        </div>
+      </div>
+
+      {/* At-a-glance KPI strip */}
+      <div style={{
+        display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px',
+        marginBottom: '20px', padding: '16px',
+        backgroundColor: 'var(--bg-surface)', borderRadius: '10px',
+        border: '1px solid var(--border-subtle)'
+      }}>
+        <div>
+          <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
+            Patients In Facility
+          </div>
+          <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--color-primary)', lineHeight: 1 }}>
+            {totalPatients}
+          </div>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+            {status.patientCounts.waiting > 0 ? `${status.patientCounts.waiting} waiting` : 'None waiting'}
+          </div>
+        </div>
+        <div>
+          <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
+            Room Availability
+          </div>
+          <div style={{ fontSize: '28px', fontWeight: 700, color: availableRooms === 0 ? 'var(--color-accent-danger)' : 'var(--color-accent-success)', lineHeight: 1 }}>
+            {availableRooms}/{totalRooms}
+          </div>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+            {occupiedRooms > 0 ? `${occupiedRooms} occupied` : 'All available'}
+          </div>
+        </div>
+        <div>
+          <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
+            Equipment Health
+          </div>
+          <div style={{ fontSize: '28px', fontWeight: 700, color: equipmentIssues > 0 ? 'var(--color-accent-warn)' : 'var(--color-accent-success)', lineHeight: 1 }}>
+            {totalEquipment - equipmentIssues}/{totalEquipment}
+          </div>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+            {equipmentIssues > 0 ? `${equipmentIssues} need attention` : 'All operational'}
+          </div>
+        </div>
+        <div>
+          <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
+            Action Items
+          </div>
+          <div style={{ fontSize: '28px', fontWeight: 700, color: status.actionItemCounts.urgent > 0 ? 'var(--color-accent-danger)' : totalActionItems > 0 ? 'var(--color-accent-warn)' : 'var(--color-accent-success)', lineHeight: 1 }}>
+            {totalActionItems}
+          </div>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+            {status.actionItemCounts.urgent > 0 ? `${status.actionItemCounts.urgent} urgent` : totalActionItems > 0 ? 'None urgent' : 'All clear'}
+          </div>
         </div>
       </div>
 

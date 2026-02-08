@@ -20,11 +20,22 @@ OPENROUTER_API_KEY=your-actual-openrouter-key-here
 
 All other settings are pre-configured for local development.
 
-### 2. Start All Services
+### 2. (Optional) Set Up Vision Service
 
-Open **3 terminal windows**:
+For computer vision room occupancy detection:
 
-#### Terminal 1: Dashboard Backend
+```bash
+cd packages/vision-service
+./setup.sh  # Install Python dependencies
+```
+
+See `VISION_SERVICE_SETUP.md` for complete instructions.
+
+### 3. Start All Services
+
+Open **3-4 terminal windows** and start services in this order:
+
+#### Terminal 1: Dashboard Backend (Start First)
 ```bash
 cd packages/backend
 npm run dev
@@ -35,16 +46,7 @@ Should show:
 - ✓ WebSocket server initialized
 - ✓ Server running on port 3000
 
-#### Terminal 2: Dashboard Frontend
-```bash
-cd packages/frontend
-npm run dev
-```
-
-Should show:
-- Local: http://localhost:5173
-
-#### Terminal 3: Cara Agent
+#### Terminal 2: Cara Autonomous Agent (Start Second)
 ```bash
 cd packages/cara-autonomous-agent
 npm run dev
@@ -54,7 +56,30 @@ Should show:
 - ✓ Cara agent started
 - ✓ Server running on port 8000
 
-### 3. Verify Integration
+#### Terminal 3: Dashboard Frontend (Start Third)
+```bash
+cd packages/frontend
+npm run dev
+```
+
+Should show:
+- Local: http://localhost:5173
+
+#### Terminal 4 (Optional): Vision Service (Start Last)
+```bash
+cd packages/vision-service
+source venv/bin/activate
+python src/main.py
+```
+
+Should show:
+- ✓ Connected to Logitech Webcam
+- ✓ Dashboard backend connected
+- Monitoring Exam Room 1...
+
+**Note:** Vision service requires Python setup. See `VISION_SERVICE_SETUP.md`
+
+### 4. Verify Integration
 
 After starting all three:
 
@@ -82,7 +107,7 @@ After starting all three:
 │   Port 5173     │ WebSocket│   Port 3000     │
 └─────────────────┘         └────────┬────────┘
                                      │
-                                     │ Every 10s
+                                     │ Every 60s
                                      │ Facility Status
                                      ▼
                             ┌─────────────────┐
@@ -97,6 +122,21 @@ After starting all three:
                             ┌─────────────────┐
                             │ Dashboard API   │
                             │   Port 3000     │
+                            └─────────────────┘
+                                     ▲
+                                     │
+                                     │ Room Status
+                                     │ Action Items
+                            ┌────────┴────────┐
+                            │ Vision Service  │
+                            │ (Optional)      │
+                            │ Python/OpenCV   │
+                            └────────┬────────┘
+                                     │
+                                     │ Video Frames
+                                     ▼
+                            ┌─────────────────┐
+                            │ Logitech Webcam │
                             └─────────────────┘
 ```
 

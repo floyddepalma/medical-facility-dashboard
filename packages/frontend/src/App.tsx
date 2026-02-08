@@ -5,9 +5,10 @@ import { useTheme } from './contexts/ThemeContext';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import CalendarView from './components/CalendarView';
+import Analytics from './components/Analytics';
 import AIAssistant from './components/AIAssistant';
 
-type View = 'dashboard' | 'calendar';
+type View = 'dashboard' | 'calendar' | 'analytics';
 
 function App() {
   const { theme, toggleTheme } = useTheme();
@@ -137,7 +138,7 @@ function App() {
 
           {/* Nav Links */}
           <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-            {(['dashboard', 'calendar'] as View[]).map(view => (
+            {(['dashboard', 'calendar', 'analytics'] as View[]).map(view => (
               <button
                 key={view}
                 onClick={() => setCurrentView(view)}
@@ -231,6 +232,7 @@ function App() {
       <main style={{ flex: 1 }}>
         {currentView === 'dashboard' && <Dashboard user={user} onLogout={handleLogout} />}
         {currentView === 'calendar' && <CalendarView user={user} />}
+        {currentView === 'analytics' && <Analytics />}
       </main>
 
       {/* AI Assistant */}

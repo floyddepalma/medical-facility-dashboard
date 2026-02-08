@@ -117,6 +117,35 @@ class ApiClient {
     return this.request(`/metrics/daily${query}`);
   }
 
+  // Utilization / Analytics
+  async getUtilization(): Promise<{
+    rooms: Array<{
+      roomId: string;
+      roomName: string;
+      roomType: string;
+      currentStatus: string;
+      todayTotalSeconds: number;
+      todaySessionCount: number;
+      avgSessionSeconds: number;
+      activeSession: { startedAt: string; currentDuration: number } | null;
+      color: string;
+    }>;
+    hourlyBreakdown: Array<{ hour: number; sessions: number; minutes: number }>;
+    avgHourlyBreakdown: Array<{ hour: number; avgSessions: number; avgMinutes: number }>;
+    hourlyByRoom: Record<number, Array<{
+      roomId: string;
+      roomName: string;
+      minutes: number;
+      sessions: number;
+      color: string;
+    }>>;
+    roomColors: Record<string, string>;
+    peakHour: { hour: number; sessions: number; label: string };
+    generatedAt: string;
+  }> {
+    return this.request('/facility/utilization');
+  }
+
   // Doctors
   async getDoctors(): Promise<{ doctors: Doctor[] }> {
     return this.request('/doctors');

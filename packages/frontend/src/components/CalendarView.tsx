@@ -22,6 +22,7 @@ export default function CalendarView({ user }: CalendarViewProps) {
   const [error, setError] = useState<string | null>(null);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
     async function initializeDoctors() {
@@ -39,6 +40,10 @@ export default function CalendarView({ user }: CalendarViewProps) {
       }
     }
     initializeDoctors();
+    
+    // Update current time every second
+    const timeInterval = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timeInterval);
   }, [user]);
 
   useEffect(() => {
@@ -113,6 +118,37 @@ export default function CalendarView({ user }: CalendarViewProps) {
           <DoctorSelector doctors={doctors} selectedDoctorId={selectedDoctorId} onChange={setSelectedDoctorId} />
         )}
 
+        {/* Page Header - consistent with Dashboard/Analytics */}
+        <div style={{ marginBottom: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <h2 style={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em' }}>
+                {viewMode === 'weekly'
+                  ? `${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+                  : selectedDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+                }
+              </h2>
+              <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                {viewMode === 'weekly' ? 'Weekly schedule view' : 'Daily schedule view'}
+              </p>
+            </div>
+            <div style={{ 
+              textAlign: 'right',
+              padding: '8px 16px',
+              backgroundColor: 'var(--bg-surface)',
+              borderRadius: '8px',
+              border: '1px solid var(--border-subtle)'
+            }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginBottom: '2px' }}>
+                Current Time
+              </div>
+              <div style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-heading)', fontVariantNumeric: 'tabular-nums' }}>
+                {currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Navigation Controls */}
         <div style={{
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -128,13 +164,6 @@ export default function CalendarView({ user }: CalendarViewProps) {
             <button onClick={handleNext} className="secondary"
               aria-label={viewMode === 'weekly' ? 'Next week' : 'Next day'}
               style={{ padding: '8px 14px', minHeight: '36px', fontSize: '13px' }}>Next →</button>
-          </div>
-
-          <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-heading)' }}>
-            {viewMode === 'weekly'
-              ? `${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
-              : selectedDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
-            }
           </div>
 
           <div style={{ display: 'flex', gap: '6px' }}>
